@@ -1,24 +1,10 @@
 import { useEffect, useRef } from 'react';
 import type { VoicePresenceUser } from '@nexusvoice/shared';
-import {
-  attachCameraTrack,
-  attachScreenTrack,
-  setParticipantVolume,
-} from '../services/voice';
-import {
-  useAppStore,
-  type VoiceParticipantInfo,
-} from '../store/useAppStore';
+import { attachCameraTrack, attachScreenTrack, setParticipantVolume } from '../services/voice';
+import { useAppStore, type VoiceParticipantInfo } from '../store/useAppStore';
+import { Avatar } from './Avatar';
 
 const EMPTY_PRESENCE: VoicePresenceUser[] = [];
-
-function getUserInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase();
-  }
-  return name.trim().slice(0, 2).toUpperCase() || '?';
-}
 
 interface ScreenStageProps {
   sharer: VoiceParticipantInfo;
@@ -26,11 +12,7 @@ interface ScreenStageProps {
   onSelectSharer: (userId: string) => void;
 }
 
-function ScreenStage({
-  sharer,
-  allSharers,
-  onSelectSharer,
-}: ScreenStageProps) {
+function ScreenStage({ sharer, allSharers, onSelectSharer }: ScreenStageProps) {
   const screenVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -85,7 +67,9 @@ function ScreenStage({
 
 interface ParticipantTileProps {
   participant: VoiceParticipantInfo;
+  avatarUrl: string | null;
   isSpeaking: boolean;
+  isMuted: boolean;
   isDeafened: boolean;
   volume: number;
   compact?: boolean;
@@ -93,7 +77,9 @@ interface ParticipantTileProps {
 
 function ParticipantTile({
   participant,
+  avatarUrl,
   isSpeaking,
+  isMuted,
   isDeafened,
   volume,
   compact = false,
@@ -111,9 +97,7 @@ function ParticipantTile({
   return (
     <div
       className={`relative flex aspect-video flex-col overflow-hidden rounded-xl border bg-[#1e1f22] transition ${
-        isSpeaking
-          ? 'border-emerald-400 ring-2 ring-emerald-400/35'
-          : 'border-zinc-800'
+        isSpeaking ? 'border-emerald-400 ring-2 ring-emerald-400/35' : 'border-zinc-800'
       }`}
     >
       {participant.isCameraOn ? (
@@ -122,23 +106,17 @@ function ParticipantTile({
           autoPlay
           playsInline
           muted
-          className={`h-full w-full object-cover ${
-            participant.isLocal ? '-scale-x-100' : ''
-          }`}
+          className={`h-full w-full object-cover ${participant.isLocal ? '-scale-x-100' : ''}`}
         />
       ) : (
         <div className="flex flex-1 items-center justify-center">
-          <div
-            className={`flex items-center justify-center rounded-full font-bold transition ${
-              compact ? 'h-11 w-11 text-sm' : 'h-16 w-16 text-lg'
-            } ${
-              isSpeaking
-                ? 'bg-emerald-600 text-white ring-4 ring-emerald-400/40'
-                : 'bg-[#2b2d31] text-zinc-200'
-            }`}
-          >
-            {getUserInitials(participant.nickname)}
-          </div>
+          <Avatar
+            url={avatarUrl}
+            name={participant.nickname}
+            size={compact ? 44 : 72}
+            speaking={isSpeaking}
+            animate={isSpeaking}
+          />
         </div>
       )}
 
@@ -165,17 +143,10 @@ function ParticipantTile({
                 min={0}
                 max={100}
                 value={volume}
-                onChange={(e) =>
-                  setParticipantVolume(
-                    participant.userId,
-                    Number(e.target.value),
-                  )
-                }
+                onChange={(e) => setParticipantVolume(participant.userId, Number(e.target.value))}
                 className="h-1 w-14 cursor-pointer accent-emerald-500"
               />
-              <span className="w-7 text-right font-mono text-[10px] text-zinc-300">
-                {volume}%
-              </span>
+              <span className="w-7 text-right font-mono text-[10px] text-zinc-300">{volume}%</span>
             </div>
           )}
 
@@ -191,12 +162,10 @@ function ParticipantTile({
           )}
           <span
             className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-              participant.isMuted
-                ? 'bg-red-500/20 text-red-300'
-                : 'bg-emerald-500/20 text-emerald-300'
+              isMuted ? 'bg-red-500/20 text-red-300' : 'bg-emerald-500/20 text-emerald-300'
             }`}
           >
-            {participant.isMuted ? 'Mutado' : 'Mic'}
+            {isMuted ? 'Mutado' : 'Mic'}
           </span>
         </div>
       </div>
@@ -213,21 +182,15 @@ export function VideoGrid({ serverId }: VideoGridProps) {
   const speakingUserIds = useAppStore((state) => state.speakingUserIds);
   const participantVolumes = useAppStore((state) => state.participantVolumes);
   const isDeafened = useAppStore((state) => state.isDeafened);
-  const focusedScreenUserId = useAppStore(
-    (state) => state.focusedScreenUserId,
-  );
-  const setFocusedScreenUserId = useAppStore(
-    (state) => state.setFocusedScreenUserId,
-  );
+  const focusedScreenUserId = useAppStore((state) => state.focusedScreenUserId);
+  const setFocusedScreenUserId = useAppStore((state) => state.setFocusedScreenUserId);
   const serverPresence = useAppStore(
     (state) => state.voicePresenceByServer[serverId] ?? EMPTY_PRESENCE,
   );
 
   const activeSharers = voiceParticipants.filter((p) => p.isScreenSharing);
   const focusedSharer =
-    activeSharers.find((p) => p.userId === focusedScreenUserId) ??
-    activeSharers[0] ??
-    null;
+    activeSharers.find((p) => p.userId === focusedScreenUserId) ?? activeSharers[0] ?? null;
 
   const gridColsClass = focusedSharer
     ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
@@ -251,18 +214,23 @@ export function VideoGrid({ serverId }: VideoGridProps) {
         {voiceParticipants.map((participant) => {
           const isSpeaking = speakingUserIds.includes(participant.userId);
           const volume = participantVolumes[participant.userId] ?? 100;
-          const presenceInfo = serverPresence.find(
-            (u) => u.userId === participant.userId,
-          );
+          const presenceInfo = serverPresence.find((u) => u.userId === participant.userId);
           const personDeafened = participant.isLocal
             ? isDeafened
             : Boolean(presenceInfo?.isDeafened);
+          // A presença diz se a pessoa se mutou. No push-to-talk o microfone fecha
+          // entre uma fala e outra, mas isso não é estar mutado.
+          const personMuted = participant.isLocal
+            ? participant.isMuted
+            : (presenceInfo?.isMuted ?? participant.isMuted);
 
           return (
             <ParticipantTile
               key={participant.userId}
               participant={participant}
+              avatarUrl={presenceInfo?.avatarUrl ?? null}
               isSpeaking={isSpeaking}
+              isMuted={personMuted}
               isDeafened={personDeafened}
               volume={volume}
               compact={Boolean(focusedSharer)}

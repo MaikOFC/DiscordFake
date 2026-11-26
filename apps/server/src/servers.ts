@@ -1,17 +1,15 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import type {
-  ActionResult,
-  Channel,
-  ChannelType,
-  ServerDetails,
-  ServerMember,
+import {
+  LIMITS,
+  type ActionResult,
+  type Channel,
+  type ChannelType,
+  type ServerDetails,
+  type ServerMember,
 } from '@nexusvoice/shared';
+import { mediaUrl } from './auth.js';
 import { db } from './db.js';
-
-const SERVER_NAME_MIN = 2;
-const SERVER_NAME_MAX = 50;
-const CHANNEL_NAME_MIN = 1;
-const CHANNEL_NAME_MAX = 32;
+import { collectAttachmentFiles, deleteStoredFile } from './uploads.js';
 
 interface ServerRow {
   id: string;
@@ -27,13 +25,24 @@ interface ChannelRow {
   name: string;
   type: ChannelType;
   created_at: string;
+  last_message_at: string | null;
 }
 
 interface MemberRow {
   user_id: string;
-  nickname: string;
   joined_at: string;
+  username: string;
+  display_name: string;
+  avatar_file: string | null;
+  banner_file: string | null;
+  bio: string;
 }
+
+/** Diz se alguém está online agora e o que está jogando. Vem da memória do index.ts. */
+export type MemberStatusLookup = (userId: string) => {
+  online: boolean;
+  activity: string | null;
+};
 
 function generateInviteCode(): string {
   // Alfabeto sem caracteres ambíguos (0/O, 1/I) para facilitar digitar/ler o convite.
@@ -47,9 +56,7 @@ function generateInviteCode(): string {
 }
 
 function createUniqueInviteCode(): string {
-  const checkStmt = db.prepare(
-    'SELECT 1 FROM servers WHERE invite_code = ?',
-  );
+  const checkStmt = db.prepare('SELECT 1 FROM servers WHERE invite_code = ?');
   for (let i = 0; i < 10; i++) {
     const candidate = generateInviteCode();
     if (!checkStmt.get(candidate)) {
@@ -61,12 +68,10 @@ function createUniqueInviteCode(): string {
 
 export function getServerDetails(
   serverId: string,
-  onlineUserIds: Set<string>,
+  status: MemberStatusLookup,
 ): ServerDetails | null {
   const server = db
-    .prepare(
-      'SELECT id, name, invite_code, owner_id, created_at FROM servers WHERE id = ?',
-    )
+    .prepare('SELECT id, name, invite_code, owner_id, created_at FROM servers WHERE id = ?')
     .get(serverId) as ServerRow | undefined;
 
   if (!server) {
@@ -75,19 +80,22 @@ export function getServerDetails(
 
   const channelRows = db
     .prepare(
-      `SELECT id, server_id, name, type, created_at
-       FROM channels
-       WHERE server_id = ?
-       ORDER BY type ASC, position ASC, created_at ASC`,
+      `SELECT c.id, c.server_id, c.name, c.type, c.created_at,
+              (SELECT MAX(m.created_at) FROM messages m WHERE m.channel_id = c.id) AS last_message_at
+       FROM channels c
+       WHERE c.server_id = ?
+       ORDER BY c.type ASC, c.position ASC, c.created_at ASC`,
     )
     .all(serverId) as ChannelRow[];
 
+  // JOIN com users: membros antigos (IDs de aba, de antes das contas) não aparecem mais.
   const memberRows = db
     .prepare(
-      `SELECT user_id, nickname, joined_at
-       FROM server_members
-       WHERE server_id = ?
-       ORDER BY joined_at ASC`,
+      `SELECT m.user_id, m.joined_at, u.username, u.display_name, u.avatar_file, u.banner_file, u.bio
+       FROM server_members m
+       JOIN users u ON u.id = m.user_id
+       WHERE m.server_id = ?
+       ORDER BY m.joined_at ASC`,
     )
     .all(serverId) as MemberRow[];
 
@@ -97,14 +105,24 @@ export function getServerDetails(
     name: c.name,
     type: c.type,
     createdAt: c.created_at,
+    lastMessageAt: c.type === 'text' ? c.last_message_at : null,
   }));
 
-  const members: ServerMember[] = memberRows.map((m) => ({
-    userId: m.user_id,
-    nickname: m.nickname,
-    joinedAt: m.joined_at,
-    online: onlineUserIds.has(m.user_id),
-  }));
+  const members: ServerMember[] = memberRows.map((m) => {
+    const current = status(m.user_id);
+    return {
+      id: m.user_id,
+      username: m.username,
+      displayName: m.display_name,
+      nickname: m.display_name,
+      avatarUrl: mediaUrl(m.avatar_file),
+      bannerUrl: mediaUrl(m.banner_file),
+      bio: m.bio,
+      joinedAt: m.joined_at,
+      online: current.online,
+      activity: current.online ? current.activity : null,
+    };
+  });
 
   return {
     id: server.id,
@@ -124,14 +142,10 @@ export function getUserServerIds(userId: string): string[] {
   return rows.map((r) => r.server_id);
 }
 
-export function getServersForUser(
-  userId: string,
-  onlineUserIds: Set<string>,
-): ServerDetails[] {
-  const serverIds = getUserServerIds(userId);
+export function getServersForUser(userId: string, status: MemberStatusLookup): ServerDetails[] {
   const result: ServerDetails[] = [];
-  for (const id of serverIds) {
-    const details = getServerDetails(id, onlineUserIds);
+  for (const id of getUserServerIds(userId)) {
+    const details = getServerDetails(id, status);
     if (details) {
       result.push(details);
     }
@@ -139,23 +153,30 @@ export function getServersForUser(
   return result;
 }
 
+export function isServerMember(serverId: string, userId: string): boolean {
+  return Boolean(
+    db
+      .prepare('SELECT 1 FROM server_members WHERE server_id = ? AND user_id = ?')
+      .get(serverId, userId),
+  );
+}
+
+/** Mantém a coluna antiga `nickname` igual ao nome de exibição da conta. */
 export function syncMemberNickname(userId: string, nickname: string): void {
-  db.prepare(
-    'UPDATE server_members SET nickname = ? WHERE user_id = ?',
-  ).run(nickname, userId);
+  db.prepare('UPDATE server_members SET nickname = ? WHERE user_id = ?').run(nickname, userId);
 }
 
 export function createServer(
   rawName: string,
   ownerId: string,
   ownerNickname: string,
-  onlineUserIds: Set<string>,
+  status: MemberStatusLookup,
 ): ActionResult<ServerDetails> {
   const name = rawName.trim();
-  if (name.length < SERVER_NAME_MIN || name.length > SERVER_NAME_MAX) {
+  if (name.length < LIMITS.serverNameMin || name.length > LIMITS.serverNameMax) {
     return {
       ok: false,
-      error: `O nome do servidor deve ter entre ${SERVER_NAME_MIN} e ${SERVER_NAME_MAX} caracteres.`,
+      error: `O nome do servidor deve ter entre ${LIMITS.serverNameMin} e ${LIMITS.serverNameMax} caracteres.`,
     };
   }
 
@@ -185,7 +206,7 @@ export function createServer(
 
   insertTransaction();
 
-  const details = getServerDetails(serverId, onlineUserIds);
+  const details = getServerDetails(serverId, status);
   if (!details) {
     return { ok: false, error: 'Erro ao carregar o servidor criado.' };
   }
@@ -197,16 +218,15 @@ export function joinServerByInvite(
   rawInviteCode: string,
   userId: string,
   nickname: string,
-  onlineUserIds: Set<string>,
+  status: MemberStatusLookup,
 ): ActionResult<ServerDetails> {
   const inviteCode = rawInviteCode.trim().toUpperCase();
   if (!inviteCode) {
     return { ok: false, error: 'Digite um código de convite válido.' };
   }
 
-  const server = db
-    .prepare('SELECT id FROM servers WHERE invite_code = ?')
-    .get(inviteCode) as { id: string } | undefined;
+  const server = db.prepare('SELECT id FROM servers WHERE invite_code = ?').get(inviteCode) as
+    { id: string } | undefined;
 
   if (!server) {
     return {
@@ -222,7 +242,7 @@ export function joinServerByInvite(
      ON CONFLICT(server_id, user_id) DO UPDATE SET nickname = excluded.nickname`,
   ).run(server.id, userId, nickname, now);
 
-  const details = getServerDetails(server.id, onlineUserIds);
+  const details = getServerDetails(server.id, status);
   if (!details) {
     return { ok: false, error: 'Servidor não encontrado.' };
   }
@@ -230,13 +250,32 @@ export function joinServerByInvite(
   return { ok: true, data: details };
 }
 
-export function deleteServer(
-  serverId: string,
-  requesterId: string,
-): ActionResult {
-  const server = db
-    .prepare('SELECT owner_id FROM servers WHERE id = ?')
-    .get(serverId) as { owner_id: string } | undefined;
+export function leaveServer(serverId: string, userId: string): ActionResult {
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
+
+  if (!server) {
+    return { ok: false, error: 'Servidor não encontrado.' };
+  }
+  if (server.owner_id === userId) {
+    return {
+      ok: false,
+      error: 'O dono não pode sair do próprio servidor. Se quiser, apague o servidor.',
+    };
+  }
+
+  const info = db
+    .prepare('DELETE FROM server_members WHERE server_id = ? AND user_id = ?')
+    .run(serverId, userId);
+  if (info.changes === 0) {
+    return { ok: false, error: 'Você não é membro deste servidor.' };
+  }
+  return { ok: true };
+}
+
+export function deleteServer(serverId: string, requesterId: string): ActionResult {
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
 
   if (!server) {
     return { ok: false, error: 'Servidor não encontrado.' };
@@ -249,7 +288,11 @@ export function deleteServer(
     };
   }
 
+  const files = collectAttachmentFiles('server', serverId);
   db.prepare('DELETE FROM servers WHERE id = ?').run(serverId);
+  for (const file of files) {
+    void deleteStoredFile(file);
+  }
   return { ok: true };
 }
 
@@ -259,9 +302,8 @@ export function createChannel(
   type: ChannelType,
   requesterId: string,
 ): ActionResult<Channel> {
-  const server = db
-    .prepare('SELECT owner_id FROM servers WHERE id = ?')
-    .get(serverId) as { owner_id: string } | undefined;
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
 
   if (!server) {
     return { ok: false, error: 'Servidor não encontrado.' };
@@ -275,10 +317,10 @@ export function createChannel(
   }
 
   const name = rawName.trim();
-  if (name.length < CHANNEL_NAME_MIN || name.length > CHANNEL_NAME_MAX) {
+  if (name.length < LIMITS.channelNameMin || name.length > LIMITS.channelNameMax) {
     return {
       ok: false,
-      error: `O nome do canal deve ter entre ${CHANNEL_NAME_MIN} e ${CHANNEL_NAME_MAX} caracteres.`,
+      error: `O nome do canal deve ter entre ${LIMITS.channelNameMin} e ${LIMITS.channelNameMax} caracteres.`,
     };
   }
 
@@ -292,6 +334,7 @@ export function createChannel(
     name,
     type,
     createdAt: new Date().toISOString(),
+    lastMessageAt: null,
   };
 
   db.prepare(
@@ -314,9 +357,8 @@ export function deleteChannel(
   channelId: string,
   requesterId: string,
 ): ActionResult {
-  const server = db
-    .prepare('SELECT owner_id FROM servers WHERE id = ?')
-    .get(serverId) as { owner_id: string } | undefined;
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
 
   if (!server) {
     return { ok: false, error: 'Servidor não encontrado.' };
@@ -329,6 +371,7 @@ export function deleteChannel(
     };
   }
 
+  const files = collectAttachmentFiles('channel', channelId);
   const info = db
     .prepare('DELETE FROM channels WHERE id = ? AND server_id = ?')
     .run(channelId, serverId);
@@ -337,5 +380,8 @@ export function deleteChannel(
     return { ok: false, error: 'Canal não encontrado.' };
   }
 
+  for (const file of files) {
+    void deleteStoredFile(file);
+  }
   return { ok: true };
 }

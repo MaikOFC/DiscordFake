@@ -1,6 +1,7 @@
 /**
  * Tipos compartilhados entre servidor e cliente.
- * Este pacote tem apenas tipos (importados com `import type`, sem etapa de build).
+ * Quase tudo aqui é tipo (`import type`). A exceção é `LIMITS`, um objeto comum
+ * que servidor e cliente importam direto do .ts, sem etapa de build.
  */
 
 /** Resposta da rota de teste do servidor (/ e /api/health). */
@@ -9,16 +10,44 @@ export interface HealthResponse {
   app: string;
   message: string;
   timestamp: string;
+  /** Versão da API. O cliente usa para saber se o endereço digitado é mesmo um servidor NexusVoice. */
+  apiVersion: number;
 }
 
-/** Sessão de uma aba conectada ao servidor. */
-export interface UserSession {
-  /** ID único gerado por aba no sessionStorage. */
-  userId: string;
-  /** Nome de exibição guardado no localStorage. */
-  nickname: string;
-  /** ID atual da conexão Socket.IO. */
-  socketId: string;
+/** Limites usados pelo servidor e repetidos no cliente para avisar antes de enviar. */
+export const LIMITS = {
+  usernameMin: 3,
+  usernameMax: 20,
+  passwordMin: 8,
+  passwordMax: 128,
+  displayNameMin: 2,
+  displayNameMax: 32,
+  bioMax: 190,
+  serverNameMin: 2,
+  serverNameMax: 50,
+  channelNameMin: 1,
+  channelNameMax: 32,
+  messageMax: 2000,
+  attachmentsPerMessage: 4,
+  attachmentMaxBytes: 10 * 1024 * 1024,
+  avatarMaxBytes: 8 * 1024 * 1024,
+  bannerMaxBytes: 10 * 1024 * 1024,
+  activityMax: 64,
+} as const;
+
+/** Perfil público de uma conta. As URLs de mídia são caminhos relativos ao servidor (ex.: /uploads/x.gif). */
+export interface PublicUser {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  bio: string;
+}
+
+export interface AuthResult {
+  token: string;
+  user: PublicUser;
 }
 
 export type ChannelType = 'text' | 'voice';
@@ -29,13 +58,17 @@ export interface Channel {
   name: string;
   type: ChannelType;
   createdAt: string;
+  /** Data da última mensagem do canal (só canais de texto). Usado para marcar canal não lido. */
+  lastMessageAt: string | null;
 }
 
-export interface ServerMember {
-  userId: string;
+export interface ServerMember extends PublicUser {
+  /** Igual ao displayName. Mantido para não quebrar o código que já usava `nickname`. */
   nickname: string;
   joinedAt: string;
   online: boolean;
+  /** Jogo ou atividade detectada pelo app de desktop (ex.: "VALORANT"). */
+  activity: string | null;
 }
 
 export interface ServerDetails {
@@ -48,6 +81,30 @@ export interface ServerDetails {
   members: ServerMember[];
 }
 
+export interface MessageAttachment {
+  id: string;
+  url: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+}
+
+export interface MessageReplyPreview {
+  id: string;
+  authorId: string;
+  authorNickname: string;
+  /** Começo do texto da mensagem respondida. */
+  content: string;
+}
+
+export interface LinkPreview {
+  url: string;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  siteName: string | null;
+}
+
 export interface ChatMessage {
   id: string;
   channelId: string;
@@ -56,6 +113,13 @@ export interface ChatMessage {
   authorNickname: string;
   content: string;
   createdAt: string;
+  editedAt: string | null;
+  /** Mensagem que esta responde. `deleted` quando a original foi apagada. */
+  replyTo: MessageReplyPreview | { id: string; deleted: true } | null;
+  attachments: MessageAttachment[];
+  /** IDs das pessoas marcadas com @usuario. */
+  mentions: string[];
+  linkPreviews: LinkPreview[];
 }
 
 export interface MessageHistoryResult {
@@ -74,6 +138,7 @@ export interface VoiceTokenPayload {
 export interface VoicePresenceUser {
   userId: string;
   nickname: string;
+  avatarUrl: string | null;
   serverId: string;
   channelId: string;
   isMuted: boolean;
@@ -89,39 +154,32 @@ export interface ActionResult<T = undefined> {
   data?: T;
 }
 
-/** Resposta padrão de identificação de sessão. */
-export interface IdentifyResult {
-  ok: boolean;
-  error?: string;
-  user?: UserSession;
-}
-
 /** Eventos que o servidor envia para o cliente via Socket.IO. */
 export interface ServerToClientEvents {
-  'server:welcome': (payload: { socketId: string; message: string }) => void;
   'session:ready': (payload: {
-    user: UserSession;
-    onlineUsers: UserSession[];
+    user: PublicUser;
     servers: ServerDetails[];
     voicePresence: VoicePresenceUser[];
   }) => void;
-  'users:online': (payload: { onlineUsers: UserSession[] }) => void;
+  /** O próprio perfil mudou (por exemplo, em outra janela). */
+  'session:user': (payload: { user: PublicUser }) => void;
   'server:updated': (payload: { server: ServerDetails }) => void;
   'server:deleted': (payload: { serverId: string }) => void;
   'message:new': (payload: { message: ChatMessage }) => void;
-  'presence:updated': (payload: {
+  'message:updated': (payload: { message: ChatMessage }) => void;
+  'message:deleted': (payload: { serverId: string; channelId: string; messageId: string }) => void;
+  'typing:update': (payload: {
     serverId: string;
-    users: VoicePresenceUser[];
+    channelId: string;
+    userId: string;
+    nickname: string;
   }) => void;
+  'presence:updated': (payload: { serverId: string; users: VoicePresenceUser[] }) => void;
   'server:error': (payload: { message: string }) => void;
 }
 
 /** Eventos que o cliente envia para o servidor via Socket.IO. */
 export interface ClientToServerEvents {
-  'session:identify': (
-    payload: { userId: string; nickname: string },
-    ack?: (result: IdentifyResult) => void,
-  ) => void;
   'server:create': (
     payload: { name: string },
     ack?: (result: ActionResult<ServerDetails>) => void,
@@ -130,10 +188,8 @@ export interface ClientToServerEvents {
     payload: { inviteCode: string },
     ack?: (result: ActionResult<ServerDetails>) => void,
   ) => void;
-  'server:delete': (
-    payload: { serverId: string },
-    ack?: (result: ActionResult) => void,
-  ) => void;
+  'server:leave': (payload: { serverId: string }, ack?: (result: ActionResult) => void) => void;
+  'server:delete': (payload: { serverId: string }, ack?: (result: ActionResult) => void) => void;
   'channel:create': (
     payload: { serverId: string; name: string; type: ChannelType },
     ack?: (result: ActionResult<Channel>) => void,
@@ -147,9 +203,20 @@ export interface ClientToServerEvents {
     ack?: (result: ActionResult<MessageHistoryResult>) => void,
   ) => void;
   'message:send': (
-    payload: { channelId: string; content: string },
+    payload: {
+      channelId: string;
+      content: string;
+      replyToId?: string;
+      attachmentIds?: string[];
+    },
     ack?: (result: ActionResult<ChatMessage>) => void,
   ) => void;
+  'message:edit': (
+    payload: { messageId: string; content: string },
+    ack?: (result: ActionResult<ChatMessage>) => void,
+  ) => void;
+  'message:delete': (payload: { messageId: string }, ack?: (result: ActionResult) => void) => void;
+  'typing:start': (payload: { channelId: string }) => void;
   'presence:join_voice': (
     payload: { channelId: string; isMuted: boolean; isDeafened: boolean },
     ack?: (result: ActionResult) => void,
@@ -161,5 +228,11 @@ export interface ClientToServerEvents {
     isScreenSharing?: boolean;
   }) => void;
   'presence:leave_voice': () => void;
+  'presence:activity': (payload: { activity: string | null }) => void;
   'client:ping': (ack: (ok: boolean) => void) => void;
+}
+
+/** Dados que o servidor guarda em cada conexão Socket.IO depois de conferir o token. */
+export interface SocketData {
+  userId: string;
 }

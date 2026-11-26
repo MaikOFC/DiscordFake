@@ -1,0 +1,44 @@
+# Gera o instalador do Windows e publica numa release do GitHub.
+#
+# Como usar:
+# 1. Suba a versão em apps/client/package.json (o app lê a versão de lá).
+# 2. Crie e envie uma tag igual, por exemplo:
+#      git tag v0.2.0
+#      git push origin v0.2.0
+# 3. Em alguns minutos o instalador aparece em Releases, e o app de quem já
+#    tem uma versão antiga mostra o aviso de atualização.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Instalador do Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/client/src-tauri
+      - run: npm ci
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: apps/client
+          tauriScript: npm run tauri --
+          tagName: ${{ github.ref_name }}
+          releaseName: NexusVoice ${{ github.ref_name }}
+          releaseBody: Baixe o arquivo que termina em "x64-setup.exe" e instale. Quem já tem o app recebe o aviso de versão nova.
+          releaseDraft: false
+          prerelease: false

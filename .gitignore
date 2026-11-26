@@ -5,12 +5,16 @@ dist/
 
 # Segredos e banco de dados local
 .env
+.env.hospedagem
 *.db
 *.sqlite
 *.sqlite3
 # Arquivos auxiliares que o SQLite cria ao lado do banco no modo WAL
 *.db-shm
 *.db-wal
+# Arquivos enviados pelas pessoas (avatares, banners, anexos) e backups do banco
+apps/server/data/uploads/
+apps/server/data/backups/
 
 # Binário local do LiveKit (cada pessoa baixa o seu)
 tools/livekit/

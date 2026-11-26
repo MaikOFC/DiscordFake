@@ -1,11 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "enables the default permissions",
-  "windows": [
-    "main"
-  ],
-  "permissions": [
-    "core:default"
-  ]
+  "description": "Permissões da janela principal do NexusVoice",
+  "windows": ["main"],
+  "permissions": ["core:default", "opener:default", "notification:default", "autostart:default"]
 }

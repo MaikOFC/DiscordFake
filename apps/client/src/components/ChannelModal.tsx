@@ -8,11 +8,7 @@ interface ChannelModalProps {
   onClose: () => void;
 }
 
-export function ChannelModal({
-  serverId,
-  initialType,
-  onClose,
-}: ChannelModalProps) {
+export function ChannelModal({ serverId, initialType, onClose }: ChannelModalProps) {
   const [name, setName] = useState('');
   const [type, setType] = useState<ChannelType>(initialType);
   const [loading, setLoading] = useState(false);
@@ -59,9 +55,7 @@ export function ChannelModal({
               }`}
             >
               <div className="font-semibold"># Texto</div>
-              <div className="mt-0.5 text-[11px] text-zinc-400">
-                Mensagens e histórico
-              </div>
+              <div className="mt-0.5 text-[11px] text-zinc-400">Mensagens e histórico</div>
             </button>
             <button
               type="button"
@@ -73,9 +67,7 @@ export function ChannelModal({
               }`}
             >
               <div className="font-semibold">🔊 Voz</div>
-              <div className="mt-0.5 text-[11px] text-zinc-400">
-                Áudio, câmera e tela
-              </div>
+              <div className="mt-0.5 text-[11px] text-zinc-400">Áudio, câmera e tela</div>
             </button>
           </div>
 
