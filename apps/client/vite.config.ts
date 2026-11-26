@@ -9,4 +9,17 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
   },
+  build: {
+    // Os worklets de áudio (RNNoise e sensibilidade) precisam ser arquivos de verdade,
+    // não texto embutido no JS, para o AudioWorklet carregar sem depender de data: URL.
+    assetsInlineLimit: (file) => (file.endsWith('.js') ? false : undefined),
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          livekit: ['livekit-client'],
+          react: ['react', 'react-dom'],
+        },
+      },
+    },
+  },
 });

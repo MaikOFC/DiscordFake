@@ -9,16 +9,9 @@ import {
   useAppStore,
   type VoiceParticipantInfo,
 } from '../store/useAppStore';
+import { Avatar } from './Avatar';
 
 const EMPTY_PRESENCE: VoicePresenceUser[] = [];
-
-function getUserInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase();
-  }
-  return name.trim().slice(0, 2).toUpperCase() || '?';
-}
 
 interface ScreenStageProps {
   sharer: VoiceParticipantInfo;
@@ -85,7 +78,9 @@ function ScreenStage({
 
 interface ParticipantTileProps {
   participant: VoiceParticipantInfo;
+  avatarUrl: string | null;
   isSpeaking: boolean;
+  isMuted: boolean;
   isDeafened: boolean;
   volume: number;
   compact?: boolean;
@@ -93,7 +88,9 @@ interface ParticipantTileProps {
 
 function ParticipantTile({
   participant,
+  avatarUrl,
   isSpeaking,
+  isMuted,
   isDeafened,
   volume,
   compact = false,
@@ -128,17 +125,13 @@ function ParticipantTile({
         />
       ) : (
         <div className="flex flex-1 items-center justify-center">
-          <div
-            className={`flex items-center justify-center rounded-full font-bold transition ${
-              compact ? 'h-11 w-11 text-sm' : 'h-16 w-16 text-lg'
-            } ${
-              isSpeaking
-                ? 'bg-emerald-600 text-white ring-4 ring-emerald-400/40'
-                : 'bg-[#2b2d31] text-zinc-200'
-            }`}
-          >
-            {getUserInitials(participant.nickname)}
-          </div>
+          <Avatar
+            url={avatarUrl}
+            name={participant.nickname}
+            size={compact ? 44 : 72}
+            speaking={isSpeaking}
+            animate={isSpeaking}
+          />
         </div>
       )}
 
@@ -191,12 +184,12 @@ function ParticipantTile({
           )}
           <span
             className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-              participant.isMuted
+              isMuted
                 ? 'bg-red-500/20 text-red-300'
                 : 'bg-emerald-500/20 text-emerald-300'
             }`}
           >
-            {participant.isMuted ? 'Mutado' : 'Mic'}
+            {isMuted ? 'Mutado' : 'Mic'}
           </span>
         </div>
       </div>
@@ -257,12 +250,19 @@ export function VideoGrid({ serverId }: VideoGridProps) {
           const personDeafened = participant.isLocal
             ? isDeafened
             : Boolean(presenceInfo?.isDeafened);
+          // A presença diz se a pessoa se mutou. No push-to-talk o microfone fecha
+          // entre uma fala e outra, mas isso não é estar mutado.
+          const personMuted = participant.isLocal
+            ? participant.isMuted
+            : (presenceInfo?.isMuted ?? participant.isMuted);
 
           return (
             <ParticipantTile
               key={participant.userId}
               participant={participant}
+              avatarUrl={presenceInfo?.avatarUrl ?? null}
               isSpeaking={isSpeaking}
+              isMuted={personMuted}
               isDeafened={personDeafened}
               volume={volume}
               compact={Boolean(focusedSharer)}
