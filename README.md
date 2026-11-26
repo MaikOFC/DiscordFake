@@ -53,7 +53,14 @@ desktop com C++". Sem Visual Studio, também funciona com o
 linker = "C:/caminho/llvm-mingw/bin/x86_64-w64-mingw32-clang.exe"
 ```
 
+Nesse caminho sem Visual Studio, o `.exe` precisa do `WebView2Loader.dll` na
+mesma pasta (ele fica em `target/release/`). O instalador gerado pelo GitHub
+usa o MSVC e não precisa disso.
+
 Quem só quer usar o app não precisa de nada disso: basta o instalador.
+
+O app guarda login, configurações e cache numa pasta `dados` ao lado do
+`NexusVoice.exe`, então instalar em outro disco não enche o C:.
 
 ## Hospedar para os amigos
 

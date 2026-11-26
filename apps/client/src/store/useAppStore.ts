@@ -61,10 +61,29 @@ function markChannelReadStorage(channelId: string, at = new Date().toISOString()
   writeStoredJson(LAST_READ_KEY, lastReadByChannel);
 }
 
+/**
+ * Marca como lido tudo o que já existia num servidor. Usado na primeira vez que o
+ * aparelho entra e ao entrar num servidor novo, para não acender todos os canais.
+ */
+function markServersReadStorage(servers: ServerDetails[]): void {
+  for (const server of servers) {
+    for (const channel of server.channels) {
+      if (channel.type === 'text' && channel.lastMessageAt) {
+        lastReadByChannel[channel.id] = channel.lastMessageAt;
+      }
+    }
+  }
+  writeStoredJson(LAST_READ_KEY, lastReadByChannel);
+}
+
 function computeUnread(
   servers: ServerDetails[],
   activeChannelId: string | null,
 ): Record<string, boolean> {
+  if (Object.keys(lastReadByChannel).length === 0) {
+    markServersReadStorage(servers);
+    return {};
+  }
   const unread: Record<string, boolean> = {};
   for (const server of servers) {
     for (const channel of server.channels) {
@@ -330,6 +349,8 @@ export const useAppStore = create<AppState>((set) => ({
   upsertServer: (server, select = false) =>
     set((state) => {
       const exists = state.servers.some((s) => s.id === server.id);
+      // Servidor que acabou de entrar pelo convite: o histórico antigo não conta como não lido.
+      if (!exists) markServersReadStorage([server]);
       const nextServers = exists
         ? state.servers.map((s) => (s.id === server.id ? server : s))
         : [...state.servers, server];
