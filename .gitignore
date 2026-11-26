@@ -5,6 +5,7 @@ dist/
 
 # Segredos e banco de dados local
 .env
+.env.hospedagem
 *.db
 *.sqlite
 *.sqlite3

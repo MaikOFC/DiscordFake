@@ -13,10 +13,15 @@
     "tauri:dev": "npm run tauri --workspace=@nexusvoice/client -- dev",
     "tauri:build": "npm run tauri --workspace=@nexusvoice/client -- build",
     "livekit": "tools\\livekit\\livekit-server.exe --dev",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "hospedar": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hospedar.ps1",
+    "firewall": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/liberar-firewall.ps1",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
+    "prettier": "^3.10.1",
     "typescript": "^5.8.2"
   }
 }

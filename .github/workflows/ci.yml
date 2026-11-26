@@ -1,0 +1,41 @@
+# Checagem automática: roda em todo pull request e em cada push no main.
+# Se algo quebrar, o GitHub mostra um X vermelho antes do merge.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  web:
+    name: Tipos, formatação e build do cliente
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm run build --workspace=@nexusvoice/client
+
+  desktop:
+    name: Compilação do app de desktop (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/client/src-tauri
+      - run: npm ci
+      # O Tauri embute o cliente compilado, então ele precisa existir antes.
+      - run: npm run build --workspace=@nexusvoice/client
+      - run: cargo check --locked --manifest-path apps/client/src-tauri/Cargo.toml
