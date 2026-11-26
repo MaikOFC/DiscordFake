@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "NexusVoice",
         "width": 1120,
         "height": 740,
@@ -28,6 +29,7 @@
   "bundle": {
     "active": true,
     "targets": "nsis",
+    "useLocalToolsDir": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -35,6 +37,12 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["PortugueseBR"]
+      }
+    },
     "android": {
       "debugApplicationIdSuffix": ".debug"
     }
