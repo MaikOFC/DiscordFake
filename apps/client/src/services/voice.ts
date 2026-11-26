@@ -638,6 +638,17 @@ export async function toggleCamera(): Promise<void> {
   }
 }
 
+/**
+ * Taxa máxima de envio (bits por segundo) para cada qualidade de tela.
+ * Mais FPS e mais resolução precisam de mais banda para não borrar.
+ */
+function getScreenShareBitrate(is1080: boolean, fps: ScreenFps): number {
+  if (is1080) {
+    return fps === 60 ? 8_000_000 : 5_000_000;
+  }
+  return fps === 60 ? 3_500_000 : 2_000_000;
+}
+
 export function setScreenShareQuality(
   resolution: ScreenResolution,
   fps: ScreenFps,
@@ -666,16 +677,28 @@ export async function toggleScreenShare(): Promise<void> {
       audioPub?.track?.stop();
     } else {
       const is1080 = screenResolution === '1080p';
-      await room.localParticipant.setScreenShareEnabled(true, {
-        // No Windows, o navegador só captura áudio do sistema ao escolher a tela inteira.
-        audio: true,
-        resolution: {
-          width: is1080 ? 1920 : 1280,
-          height: is1080 ? 1080 : 720,
-          frameRate: screenFps,
+      await room.localParticipant.setScreenShareEnabled(
+        true,
+        {
+          // No Windows, o navegador só captura áudio do sistema ao escolher a tela inteira.
+          audio: true,
+          resolution: {
+            width: is1080 ? 1920 : 1280,
+            height: is1080 ? 1080 : 720,
+            frameRate: screenFps,
+          },
+          // 'motion' prioriza fluidez (jogos, vídeos); 'detail' prioriza nitidez (texto, código).
+          contentHint: screenFps === 60 ? 'motion' : 'detail',
         },
-        contentHint: 'detail',
-      });
+        {
+          // Sem isto o LiveKit usa o padrão dele para tela (máx. 15 FPS e 2,5 Mbps),
+          // e a opção de 30/60 FPS escolhida no seletor seria ignorada no envio.
+          screenShareEncoding: {
+            maxBitrate: getScreenShareBitrate(is1080, screenFps),
+            maxFramerate: screenFps,
+          },
+        },
+      );
     }
 
     const nowSharing = room.localParticipant.isScreenShareEnabled;
