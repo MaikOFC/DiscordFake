@@ -62,7 +62,8 @@ function ServerHeader({ server, isOwner }: { server: ServerDetails; isOwner: boo
   }
 
   async function runConfirm(): Promise<void> {
-    const result = confirm === 'delete' ? await deleteServer(server.id) : await leaveServer(server.id);
+    const result =
+      confirm === 'delete' ? await deleteServer(server.id) : await leaveServer(server.id);
     setConfirm(null);
     setMenuOpen(false);
     if (!result.ok) setError(result.error ?? 'Não deu certo.');
@@ -87,7 +88,8 @@ function ServerHeader({ server, isOwner }: { server: ServerDetails; isOwner: boo
         <div className="absolute top-12 right-2 left-2 z-30 space-y-1 rounded-lg border border-zinc-700 bg-[#111214] p-2 text-xs shadow-xl">
           <div className="flex items-center justify-between gap-2 rounded-md bg-[#1e1f22] px-2 py-1.5">
             <span className="text-zinc-400">
-              Convite: <code className="font-mono font-semibold text-emerald-400">{server.inviteCode}</code>
+              Convite:{' '}
+              <code className="font-mono font-semibold text-emerald-400">{server.inviteCode}</code>
             </span>
             <button
               type="button"
@@ -97,7 +99,9 @@ function ServerHeader({ server, isOwner }: { server: ServerDetails; isOwner: boo
               {copied ? 'Copiado!' : 'Copiar'}
             </button>
           </div>
-          <div className="px-2 py-1 text-zinc-500">{isOwner ? 'Você é o dono deste servidor.' : 'Você é membro.'}</div>
+          <div className="px-2 py-1 text-zinc-500">
+            {isOwner ? 'Você é o dono deste servidor.' : 'Você é membro.'}
+          </div>
           {!confirm ? (
             <button
               type="button"
@@ -195,7 +199,9 @@ function VoicePanel() {
                 type="button"
                 onClick={() => void toggleCamera()}
                 className={`cursor-pointer rounded-md py-1 text-[11px] font-medium ${
-                  isCameraOn ? 'bg-emerald-600 text-white' : 'bg-zinc-700/70 text-zinc-200 hover:bg-zinc-600'
+                  isCameraOn
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-zinc-700/70 text-zinc-200 hover:bg-zinc-600'
                 }`}
               >
                 {isCameraOn ? 'Câmera ligada' : 'Câmera'}
@@ -204,7 +210,9 @@ function VoicePanel() {
                 type="button"
                 onClick={() => void toggleScreenShare()}
                 className={`cursor-pointer rounded-md py-1 text-[11px] font-medium ${
-                  isScreenSharing ? 'bg-emerald-600 text-white' : 'bg-zinc-700/70 text-zinc-200 hover:bg-zinc-600'
+                  isScreenSharing
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-zinc-700/70 text-zinc-200 hover:bg-zinc-600'
                 }`}
               >
                 {isScreenSharing ? 'Tela ligada' : 'Tela'}
@@ -259,10 +267,18 @@ function UserPanel() {
       </button>
       {inCall && (
         <>
-          <IconButton title={isMicMuted ? 'Desmutar' : 'Mutar'} onClick={() => void toggleMicrophoneMute()} active={isMicMuted}>
+          <IconButton
+            title={isMicMuted ? 'Desmutar' : 'Mutar'}
+            onClick={() => void toggleMicrophoneMute()}
+            active={isMicMuted}
+          >
             {isMicMuted ? '🔇' : '🎙️'}
           </IconButton>
-          <IconButton title={isDeafened ? 'Voltar a ouvir' : 'Ensurdecer'} onClick={() => void toggleDeafen()} active={isDeafened}>
+          <IconButton
+            title={isDeafened ? 'Voltar a ouvir' : 'Ensurdecer'}
+            onClick={() => void toggleDeafen()}
+            active={isDeafened}
+          >
             {isDeafened ? '🙉' : '🎧'}
           </IconButton>
         </>
@@ -385,7 +401,9 @@ export function ChannelSidebar({ server, onCreateChannel }: ChannelSidebarProps)
                     <li key={channel.id}>
                       <div
                         className={`group flex items-center rounded-md px-2 py-1.5 text-sm ${
-                          isSelected ? 'bg-zinc-600/50 text-white' : 'text-zinc-400 hover:bg-zinc-700/40 hover:text-zinc-200'
+                          isSelected
+                            ? 'bg-zinc-600/50 text-white'
+                            : 'text-zinc-400 hover:bg-zinc-700/40 hover:text-zinc-200'
                         }`}
                       >
                         <button
@@ -398,7 +416,9 @@ export function ChannelSidebar({ server, onCreateChannel }: ChannelSidebarProps)
                         >
                           <span className="text-xs">🔊</span>
                           <span className="truncate">{channel.name}</span>
-                          {connectedHere && <span className="ml-auto h-2 w-2 shrink-0 rounded-full bg-emerald-400" />}
+                          {connectedHere && (
+                            <span className="ml-auto h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+                          )}
                         </button>
                         {isOwner && (
                           <button
@@ -422,8 +442,15 @@ export function ChannelSidebar({ server, onCreateChannel }: ChannelSidebarProps)
                                   onClick={(e) => openProfileAt(person.userId, server.id, e)}
                                   className="flex w-full cursor-pointer items-center gap-2 rounded px-1.5 py-0.5 text-left text-xs text-zinc-300 hover:bg-zinc-700/40"
                                 >
-                                  <Avatar url={person.avatarUrl} name={person.nickname} size={22} speaking={speaking} />
-                                  <span className={`min-w-0 flex-1 truncate ${speaking ? 'text-white' : ''}`}>
+                                  <Avatar
+                                    url={person.avatarUrl}
+                                    name={person.nickname}
+                                    size={22}
+                                    speaking={speaking}
+                                  />
+                                  <span
+                                    className={`min-w-0 flex-1 truncate ${speaking ? 'text-white' : ''}`}
+                                  >
                                     {person.nickname}
                                   </span>
                                   <span className="shrink-0 text-[10px]">

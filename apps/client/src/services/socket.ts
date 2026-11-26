@@ -43,7 +43,8 @@ function handleIncomingMessage(message: ChatMessage): void {
   if (isMention && !isViewing) {
     playSound('mention');
   }
-  const shouldNotify = !state.windowFocused && (mode === 'all' || (mode === 'mentions' && isMention));
+  const shouldNotify =
+    !state.windowFocused && (mode === 'all' || (mode === 'mentions' && isMention));
   if (shouldNotify) {
     const server = state.servers.find((s) => s.id === message.serverId);
     const channel = server?.channels.find((c) => c.id === message.channelId);
@@ -214,7 +215,9 @@ function emitWithAck<T>(
 }
 
 export async function createServer(name: string): Promise<ActionResult<ServerDetails>> {
-  const result = await emitWithAck<ServerDetails>((s, ack) => s.emit('server:create', { name }, ack));
+  const result = await emitWithAck<ServerDetails>((s, ack) =>
+    s.emit('server:create', { name }, ack),
+  );
   if (result.ok && result.data) useAppStore.getState().upsertServer(result.data, true);
   return result;
 }
@@ -231,13 +234,17 @@ export async function leaveServer(serverId: string): Promise<ActionResult> {
   if (useAppStore.getState().voiceServerId === serverId) {
     await leaveVoiceChannel();
   }
-  const result = await emitWithAck<undefined>((s, ack) => s.emit('server:leave', { serverId }, ack));
+  const result = await emitWithAck<undefined>((s, ack) =>
+    s.emit('server:leave', { serverId }, ack),
+  );
   if (result.ok) useAppStore.getState().removeServer(serverId);
   return result;
 }
 
 export async function deleteServer(serverId: string): Promise<ActionResult> {
-  const result = await emitWithAck<undefined>((s, ack) => s.emit('server:delete', { serverId }, ack));
+  const result = await emitWithAck<undefined>((s, ack) =>
+    s.emit('server:delete', { serverId }, ack),
+  );
   if (result.ok) useAppStore.getState().removeServer(serverId);
   return result;
 }
@@ -271,7 +278,12 @@ export async function loadChannelMessages(
   if (result.ok && result.data) {
     useAppStore
       .getState()
-      .setChannelHistory(channelId, result.data.messages, result.data.hasMore, Boolean(beforeMessageId));
+      .setChannelHistory(
+        channelId,
+        result.data.messages,
+        result.data.hasMore,
+        Boolean(beforeMessageId),
+      );
   } else {
     useAppStore.getState().setLoadingHistory(null);
   }
@@ -318,7 +330,11 @@ export function emitActivity(activity: string | null): void {
   if (socket?.connected) socket.emit('presence:activity', { activity });
 }
 
-export function emitJoinVoicePresence(channelId: string, isMuted: boolean, isDeafened: boolean): void {
+export function emitJoinVoicePresence(
+  channelId: string,
+  isMuted: boolean,
+  isDeafened: boolean,
+): void {
   if (socket?.connected) socket.emit('presence:join_voice', { channelId, isMuted, isDeafened });
 }
 

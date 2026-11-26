@@ -1,17 +1,8 @@
 import { create } from 'zustand';
-import type {
-  ChatMessage,
-  PublicUser,
-  ServerDetails,
-  VoicePresenceUser,
-} from '@nexusvoice/shared';
+import type { ChatMessage, PublicUser, ServerDetails, VoicePresenceUser } from '@nexusvoice/shared';
 import { readStoredJson, writeStoredJson } from '../lib/config';
 
-export type ConnectionStatus =
-  | 'signedOut'
-  | 'connecting'
-  | 'connected'
-  | 'reconnecting';
+export type ConnectionStatus = 'signedOut' | 'connecting' | 'connected' | 'reconnecting';
 
 export type VoiceStatus = 'idle' | 'connecting' | 'connected' | 'reconnecting';
 export type ScreenResolution = '720p' | '1080p';
@@ -70,11 +61,15 @@ function markChannelReadStorage(channelId: string, at = new Date().toISOString()
   writeStoredJson(LAST_READ_KEY, lastReadByChannel);
 }
 
-function computeUnread(servers: ServerDetails[], activeChannelId: string | null): Record<string, boolean> {
+function computeUnread(
+  servers: ServerDetails[],
+  activeChannelId: string | null,
+): Record<string, boolean> {
   const unread: Record<string, boolean> = {};
   for (const server of servers) {
     for (const channel of server.channels) {
-      if (channel.type !== 'text' || !channel.lastMessageAt || channel.id === activeChannelId) continue;
+      if (channel.type !== 'text' || !channel.lastMessageAt || channel.id === activeChannelId)
+        continue;
       const lastRead = lastReadByChannel[channel.id];
       if (!lastRead || channel.lastMessageAt > lastRead) {
         unread[channel.id] = true;
@@ -302,7 +297,9 @@ export const useAppStore = create<AppState>((set) => ({
 
   setConnecting: () => set({ connectionStatus: 'connecting', errorMessage: null }),
   setReconnecting: () =>
-    set((state) => (state.me ? { connectionStatus: 'reconnecting' } : { connectionStatus: 'connecting' })),
+    set((state) =>
+      state.me ? { connectionStatus: 'reconnecting' } : { connectionStatus: 'connecting' },
+    ),
   setSessionReady: (user, servers, voicePresence, isReconnect) =>
     set((state) => {
       const selection = resolveSelection(servers, state.activeServerId, state.activeChannelId);

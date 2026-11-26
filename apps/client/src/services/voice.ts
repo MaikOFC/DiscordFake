@@ -65,7 +65,11 @@ function formatMicrophoneError(error: unknown): string {
   const name = error instanceof Error ? error.name : '';
   const msg = error instanceof Error ? error.message.toLowerCase() : '';
 
-  if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || msg.includes('permission')) {
+  if (
+    name === 'NotAllowedError' ||
+    name === 'PermissionDeniedError' ||
+    msg.includes('permission')
+  ) {
     return 'Permissão de microfone negada. Libere o microfone para falar.';
   }
   if (name === 'NotFoundError' || msg.includes('not found')) {
@@ -81,7 +85,11 @@ function formatCameraError(error: unknown): string {
   const name = error instanceof Error ? error.name : '';
   const msg = error instanceof Error ? error.message.toLowerCase() : '';
 
-  if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || msg.includes('permission')) {
+  if (
+    name === 'NotAllowedError' ||
+    name === 'PermissionDeniedError' ||
+    msg.includes('permission')
+  ) {
     return 'Permissão de câmera negada. Libere a câmera para transmitir vídeo.';
   }
   if (name === 'NotFoundError' || msg.includes('not found')) {
@@ -174,7 +182,9 @@ function syncParticipantsFromRoom(room: Room): void {
 
   const local = room.localParticipant;
   const localCamPub = local.getTrackPublication(Track.Source.Camera);
-  const localHasCamera = Boolean(local.isCameraEnabled && localCamPub?.track && !localCamPub.isMuted);
+  const localHasCamera = Boolean(
+    local.isCameraEnabled && localCamPub?.track && !localCamPub.isMuted,
+  );
   if (localHasCamera && localCamPub?.track) {
     cameraTracksByUser.set(local.identity, localCamPub.track);
   } else {
@@ -211,7 +221,9 @@ function syncParticipantsFromRoom(room: Room): void {
     }
 
     const screenPub = remote.getTrackPublication(Track.Source.ScreenShare);
-    const hasScreen = Boolean(remote.isScreenShareEnabled && screenPub?.track && !screenPub.isMuted);
+    const hasScreen = Boolean(
+      remote.isScreenShareEnabled && screenPub?.track && !screenPub.isMuted,
+    );
     if (hasScreen && screenPub?.track) {
       screenTracksByUser.set(remote.identity, screenPub.track);
     } else {
@@ -448,7 +460,8 @@ async function connectToVoice(target: VoiceTarget, isRejoin: boolean): Promise<v
     audioCaptureDefaults: buildCaptureOptions(),
     audioOutput: selectedAudioOutputId ? { deviceId: selectedAudioOutputId } : undefined,
     publishDefaults: {
-      audioPreset: settings.audioQuality === 'music' ? AudioPresets.musicHighQuality : AudioPresets.speech,
+      audioPreset:
+        settings.audioQuality === 'music' ? AudioPresets.musicHighQuality : AudioPresets.speech,
       dtx: settings.audioQuality !== 'music',
       red: true,
     },
@@ -552,7 +565,9 @@ async function connectToVoice(target: VoiceTarget, isRejoin: boolean): Promise<v
   const previous = useAppStore.getState();
   const keepMuted = isRejoin ? previous.isMicMuted : false;
   const keepDeafened = isRejoin ? previous.isDeafened : false;
-  useAppStore.getState().setVoiceConnected(serverId, channelId, channelName, keepMuted, keepDeafened);
+  useAppStore
+    .getState()
+    .setVoiceConnected(serverId, channelId, channelName, keepMuted, keepDeafened);
 
   // 3. Abre o microfone uma vez (para publicar a faixa e pedir permissão) e liga o processamento.
   let micError: string | null = null;
@@ -680,7 +695,9 @@ export function setPushToTalk(pressed: boolean): void {
 }
 
 /** Reaplica as configurações de voz durante uma chamada (modo, supressão, sensibilidade). */
-export async function applyVoiceSettings(options: { rebuildProcessor?: boolean } = {}): Promise<void> {
+export async function applyVoiceSettings(
+  options: { rebuildProcessor?: boolean } = {},
+): Promise<void> {
   const room = activeRoom;
   if (!room) return;
   const track = getMicTrack(room);

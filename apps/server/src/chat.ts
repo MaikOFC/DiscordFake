@@ -173,8 +173,7 @@ function hydrateMessages(rows: MessageRow[]): ChatMessage[] {
 
 export function getMessage(messageId: string): ChatMessage | null {
   const row = db.prepare(`${MESSAGE_SELECT} WHERE m.id = ?`).get(messageId) as
-    | MessageRow
-    | undefined;
+    MessageRow | undefined;
   return row ? (hydrateMessages([row])[0] ?? null) : null;
 }
 
@@ -397,8 +396,7 @@ export function deleteTextMessage(
        WHERE m.id = ?`,
     )
     .get(messageId) as
-    | { author_id: string; server_id: string; channel_id: string; owner_id: string }
-    | undefined;
+    { author_id: string; server_id: string; channel_id: string; owner_id: string } | undefined;
 
   if (!row) {
     return { ok: false, error: 'Mensagem não encontrada.' };

@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { playSound } from '../../lib/sounds';
-import { buildVoiceGraph, destroyVoiceGraph, getVoiceAudioContext, readLevelDb } from '../../services/audioProcessor';
+import {
+  buildVoiceGraph,
+  destroyVoiceGraph,
+  getVoiceAudioContext,
+  readLevelDb,
+} from '../../services/audioProcessor';
 import {
   applyVoiceSettings,
   getCallMicLevelDb,
@@ -70,7 +75,9 @@ function MicMeter() {
         timer = setInterval(() => setLevel(readLevelDb(analyser, buffer)), 60);
         void refreshAudioDevices();
       } catch {
-        setError('Não foi possível abrir o microfone. Confira a permissão e se outro programa está usando.');
+        setError(
+          'Não foi possível abrir o microfone. Confira a permissão e se outro programa está usando.',
+        );
         setTesting(false);
       }
     })();
@@ -110,7 +117,11 @@ function MicMeter() {
           <span>Mostrando o seu microfone na chamada.</span>
         ) : (
           <>
-            <button type="button" onClick={() => setTesting((v) => !v)} className={secondaryButtonClass}>
+            <button
+              type="button"
+              onClick={() => setTesting((v) => !v)}
+              className={secondaryButtonClass}
+            >
               {testing ? 'Parar teste' : 'Testar microfone'}
             </button>
             {testing && (
@@ -206,11 +217,16 @@ export function VoiceSettings() {
           value={settings.voiceMode}
           onChange={(v) => change({ voiceMode: v }, false)}
           options={[
-            { value: 'voice', label: 'Detecção de voz', description: 'O microfone abre sozinho quando você fala.' },
+            {
+              value: 'voice',
+              label: 'Detecção de voz',
+              description: 'O microfone abre sozinho quando você fala.',
+            },
             {
               value: 'ptt',
               label: 'Apertar para falar (push-to-talk)',
-              description: 'Só transmite enquanto você segura o atalho. Escolha a tecla na aba Atalhos.',
+              description:
+                'Só transmite enquanto você segura o atalho. Escolha a tecla na aba Atalhos.',
             },
           ]}
         />
@@ -251,9 +267,14 @@ export function VoiceSettings() {
             {
               value: 'rnnoise',
               label: 'Forte (RNNoise)',
-              description: 'Rede neural que tira ventilador, teclado e barulho de rua. Usa um pouco mais de CPU.',
+              description:
+                'Rede neural que tira ventilador, teclado e barulho de rua. Usa um pouco mais de CPU.',
             },
-            { value: 'browser', label: 'Padrão', description: 'A supressão que já vem no navegador.' },
+            {
+              value: 'browser',
+              label: 'Padrão',
+              description: 'A supressão que já vem no navegador.',
+            },
             { value: 'off', label: 'Desligada' },
           ]}
         />
@@ -271,7 +292,10 @@ export function VoiceSettings() {
         />
       </Section>
 
-      <Section title="Qualidade do áudio" hint="Vale a partir da próxima vez que você entrar num canal de voz.">
+      <Section
+        title="Qualidade do áudio"
+        hint="Vale a partir da próxima vez que você entrar num canal de voz."
+      >
         <RadioGroup
           value={settings.audioQuality}
           onChange={(v) => settings.update({ audioQuality: v })}
@@ -306,7 +330,11 @@ export function VoiceSettings() {
                 onChange={(v) => settings.update({ soundVolume: v })}
               />
             </div>
-            <button type="button" onClick={() => playSound('join')} className={`${secondaryButtonClass} mb-2.5`}>
+            <button
+              type="button"
+              onClick={() => playSound('join')}
+              className={`${secondaryButtonClass} mb-2.5`}
+            >
               Testar
             </button>
           </div>

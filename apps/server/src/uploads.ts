@@ -54,7 +54,11 @@ export function detectFileType(buf: Buffer, originalName: string): DetectedType 
   if (ascii(buf, 0, 4) === 'OggS') {
     return { mime: 'audio/ogg', ext: 'ogg', inline: true, isImage: false };
   }
-  if (ascii(buf, 0, 3) === 'ID3' || startsWith(buf, [0xff, 0xfb]) || startsWith(buf, [0xff, 0xf3])) {
+  if (
+    ascii(buf, 0, 3) === 'ID3' ||
+    startsWith(buf, [0xff, 0xfb]) ||
+    startsWith(buf, [0xff, 0xf3])
+  ) {
     return { mime: 'audio/mpeg', ext: 'mp3', inline: true, isImage: false };
   }
 
@@ -66,7 +70,10 @@ export function detectFileType(buf: Buffer, originalName: string): DetectedType 
 
 /** Limpa o nome original para exibir e para o cabeçalho de download. */
 export function sanitizeFileName(name: string): string {
-  const base = name.replace(/[\\/]/g, '_').replace(/[\u0000-\u001f]/g, '').trim();
+  const base = name
+    .replace(/[\\/]/g, '_')
+    .replace(/[\u0000-\u001f]/g, '')
+    .trim();
   return (base || 'arquivo').slice(0, 120);
 }
 
@@ -136,9 +143,7 @@ export async function createPendingAttachment(
   return toAttachment(row);
 }
 
-export function getAttachmentsForMessages(
-  messageIds: string[],
-): Map<string, MessageAttachment[]> {
+export function getAttachmentsForMessages(messageIds: string[]): Map<string, MessageAttachment[]> {
   const result = new Map<string, MessageAttachment[]>();
   if (messageIds.length === 0) return result;
   const placeholders = messageIds.map(() => '?').join(',');
@@ -247,9 +252,8 @@ export async function serveUpload(
 
   const ext = name.slice(name.lastIndexOf('.') + 1);
   const inlineMime = INLINE_MIME_BY_EXT[ext];
-  const record = db
-    .prepare('SELECT file_name FROM attachments WHERE stored_name = ?')
-    .get(name) as { file_name: string } | undefined;
+  const record = db.prepare('SELECT file_name FROM attachments WHERE stored_name = ?').get(name) as
+    { file_name: string } | undefined;
   const downloadName = encodeURIComponent(record?.file_name ?? name);
 
   reply.header('X-Content-Type-Options', 'nosniff');

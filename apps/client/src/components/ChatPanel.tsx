@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+} from 'react';
 import type { Channel, ChatMessage, ServerDetails } from '@nexusvoice/shared';
 import type { MarkdownContext } from '../lib/markdown';
 import { loadChannelMessages } from '../services/socket';
@@ -62,7 +70,10 @@ export function ChatPanel({ channel, server }: ChatPanelProps) {
 
   const myId = me?.id ?? '';
   const isOwner = server.ownerId === myId;
-  const membersById = useMemo(() => new Map(server.members.map((m) => [m.id, m])), [server.members]);
+  const membersById = useMemo(
+    () => new Map(server.members.map((m) => [m.id, m])),
+    [server.members],
+  );
 
   const markdown = useMemo<MarkdownContext>(() => {
     const byUsername = new Map(server.members.map((m) => [m.username.toLowerCase(), m]));
@@ -122,7 +133,8 @@ export function ChatPanel({ channel, server }: ChatPanelProps) {
   function handleScroll(): void {
     const container = listRef.current;
     if (!container) return;
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
     stickToBottomRef.current = distanceFromBottom < 80;
     if (container.scrollTop <= 32 && hasMore && !isLoadingHistory) {
       void handleLoadOlder();
@@ -182,7 +194,9 @@ export function ChatPanel({ channel, server }: ChatPanelProps) {
               onClick={() => void handleLoadOlder()}
               className="cursor-pointer rounded-md border border-zinc-700 bg-[#2b2d31] px-3 py-1 text-xs text-zinc-300 hover:bg-zinc-700 disabled:opacity-60"
             >
-              {isLoadingHistory ? 'Carregando mensagens antigas...' : 'Carregar mensagens mais antigas'}
+              {isLoadingHistory
+                ? 'Carregando mensagens antigas...'
+                : 'Carregar mensagens mais antigas'}
             </button>
           </div>
         )}
@@ -208,7 +222,8 @@ export function ChatPanel({ channel, server }: ChatPanelProps) {
             !newDay &&
             !message.replyTo &&
             previous?.authorId === message.authorId &&
-            new Date(message.createdAt).getTime() - new Date(previous.createdAt).getTime() < GROUP_WINDOW_MS;
+            new Date(message.createdAt).getTime() - new Date(previous.createdAt).getTime() <
+              GROUP_WINDOW_MS;
 
           return (
             <div key={message.id}>

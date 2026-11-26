@@ -58,12 +58,17 @@ export function VoiceStage({ server, channel }: { server: ServerDetails; channel
     return (
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md rounded-xl border border-zinc-700/60 bg-[#2b2d31] p-6 text-center shadow-lg">
-          <div className="text-xs font-semibold uppercase tracking-wide text-emerald-400">Canal de voz</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-emerald-400">
+            Canal de voz
+          </div>
           <h3 className="mt-1 text-xl font-bold text-white">🔊 {channel.name}</h3>
           {peopleHere.length > 0 ? (
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               {peopleHere.map((p) => (
-                <div key={p.userId} className="flex items-center gap-1.5 rounded-full bg-[#1e1f22] py-1 pr-3 pl-1 text-xs">
+                <div
+                  key={p.userId}
+                  className="flex items-center gap-1.5 rounded-full bg-[#1e1f22] py-1 pr-3 pl-1 text-xs"
+                >
                   <Avatar url={p.avatarUrl} name={p.nickname} size={22} />
                   {p.nickname}
                 </div>
@@ -78,7 +83,9 @@ export function VoiceStage({ server, channel }: { server: ServerDetails; channel
             onClick={() => void joinVoiceChannel(server.id, channel.id, channel.name)}
             className="mt-5 cursor-pointer rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
           >
-            {voiceStatus === 'connecting' && voiceChannelId === channel.id ? 'Conectando...' : 'Entrar no canal de voz'}
+            {voiceStatus === 'connecting' && voiceChannelId === channel.id
+              ? 'Conectando...'
+              : 'Entrar no canal de voz'}
           </button>
           {voiceError && (
             <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
@@ -100,7 +107,9 @@ export function VoiceStage({ server, channel }: { server: ServerDetails; channel
                 voiceStatus === 'reconnecting' ? 'text-amber-300' : 'text-emerald-400'
               }`}
             >
-              {voiceStatus === 'reconnecting' ? 'Reconectando...' : `Chamada ativa (${voiceParticipants.length})`}
+              {voiceStatus === 'reconnecting'
+                ? 'Reconectando...'
+                : `Chamada ativa (${voiceParticipants.length})`}
             </span>
             <h3 className="text-lg font-bold text-white">🔊 {channel.name}</h3>
           </div>
@@ -125,7 +134,11 @@ export function VoiceStage({ server, channel }: { server: ServerDetails; channel
               tone={isScreenSharing ? 'on' : 'neutral'}
               onClick={() => void toggleScreenShare()}
             />
-            <CallButton label="Desconectar" tone="danger" onClick={() => void leaveVoiceChannel()} />
+            <CallButton
+              label="Desconectar"
+              tone="danger"
+              onClick={() => void leaveVoiceChannel()}
+            />
           </div>
         </div>
 
@@ -144,7 +157,9 @@ export function VoiceStage({ server, channel }: { server: ServerDetails; channel
             <select
               value={screenFps}
               disabled={isScreenSharing}
-              onChange={(e) => setScreenShareQuality(screenResolution, Number(e.target.value) as ScreenFps)}
+              onChange={(e) =>
+                setScreenShareQuality(screenResolution, Number(e.target.value) as ScreenFps)
+              }
               className="rounded border border-zinc-700 bg-[#1e1f22] px-2 py-1 text-xs text-zinc-100 outline-none disabled:opacity-60"
             >
               <option value={30}>30 FPS</option>

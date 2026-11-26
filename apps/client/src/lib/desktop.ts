@@ -14,8 +14,7 @@ import {
 import { openUrl } from '@tauri-apps/plugin-opener';
 import type { CustomGame, HotkeyBinding } from '../store/useSettings';
 
-export const isDesktop =
-  typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+export const isDesktop = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 export async function setGlobalHotkeys(
   ptt: HotkeyBinding | null,

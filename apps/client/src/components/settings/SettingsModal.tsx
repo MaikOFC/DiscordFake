@@ -34,7 +34,9 @@ export function SettingsModal() {
   return (
     <div className="fixed inset-0 z-50 flex bg-[#313338]">
       <nav className="flex w-56 shrink-0 flex-col gap-0.5 border-r border-zinc-800 bg-[#2b2d31] p-3 pt-10">
-        <div className="mb-1 px-2 text-[11px] font-bold uppercase tracking-wide text-zinc-400">Configurações</div>
+        <div className="mb-1 px-2 text-[11px] font-bold uppercase tracking-wide text-zinc-400">
+          Configurações
+        </div>
         {TABS.filter((t) => !t.desktopOnly || isDesktop).map((t) => (
           <button
             key={t.id}
@@ -51,7 +53,9 @@ export function SettingsModal() {
       <div className="min-w-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-2xl px-8 pt-10 pb-16">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">{TABS.find((t) => t.id === tab)?.label}</h2>
+            <h2 className="text-xl font-bold text-white">
+              {TABS.find((t) => t.id === tab)?.label}
+            </h2>
             <button
               type="button"
               onClick={() => setOpen(false)}

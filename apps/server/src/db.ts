@@ -2,13 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import Database from 'better-sqlite3';
 
-const defaultDbPath = resolve(
-  import.meta.dirname,
-  '../data/nexusvoice.db',
-);
-const dbPath = process.env.DB_PATH
-  ? resolve(process.env.DB_PATH)
-  : defaultDbPath;
+const defaultDbPath = resolve(import.meta.dirname, '../data/nexusvoice.db');
+const dbPath = process.env.DB_PATH ? resolve(process.env.DB_PATH) : defaultDbPath;
 
 /** Pasta onde ficam os arquivos enviados (avatares, banners e anexos do chat). */
 export const uploadsDir = process.env.UPLOADS_DIR

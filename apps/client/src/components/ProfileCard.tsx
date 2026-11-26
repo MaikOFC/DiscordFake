@@ -73,7 +73,9 @@ export function ProfileCard() {
               name={member.displayName}
               size={76}
               animate
-              status={member.online === undefined ? null : member.online || isMe ? 'online' : 'offline'}
+              status={
+                member.online === undefined ? null : member.online || isMe ? 'online' : 'offline'
+              }
             />
           </div>
         </div>
@@ -89,8 +91,12 @@ export function ProfileCard() {
 
           {member.bio && (
             <div className="mt-3 border-t border-zinc-700/70 pt-2">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Sobre mim</div>
-              <p className="mt-1 whitespace-pre-wrap break-words text-xs text-zinc-200">{member.bio}</p>
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                Sobre mim
+              </div>
+              <p className="mt-1 whitespace-pre-wrap break-words text-xs text-zinc-200">
+                {member.bio}
+              </p>
             </div>
           )}
 
@@ -120,6 +126,12 @@ export function ProfileCard() {
 }
 
 /** Abre o cartão de perfil na posição do clique. */
-export function openProfileAt(userId: string, serverId: string | null, event: { clientX: number; clientY: number }): void {
-  useAppStore.getState().openProfileCard({ userId, serverId, x: event.clientX + 12, y: event.clientY - 40 });
+export function openProfileAt(
+  userId: string,
+  serverId: string | null,
+  event: { clientX: number; clientY: number },
+): void {
+  useAppStore
+    .getState()
+    .openProfileCard({ userId, serverId, x: event.clientX + 12, y: event.clientY - 40 });
 }

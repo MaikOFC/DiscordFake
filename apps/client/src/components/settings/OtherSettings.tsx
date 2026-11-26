@@ -12,7 +12,14 @@ import {
 import { checkForUpdates } from '../../services/updates';
 import { useAppStore } from '../../store/useAppStore';
 import { useSettings, type CustomGame, type HotkeyBinding } from '../../store/useSettings';
-import { RadioGroup, Section, Toggle, buttonClass, inputClass, secondaryButtonClass } from './SettingsControls';
+import {
+  RadioGroup,
+  Section,
+  Toggle,
+  buttonClass,
+  inputClass,
+  secondaryButtonClass,
+} from './SettingsControls';
 
 function KeyBinder({
   label,
@@ -55,7 +62,12 @@ function KeyBinder({
           {capturing ? 'Aperte a tecla...' : (value?.name ?? 'Nenhum')}
         </button>
         {value && !capturing && (
-          <button type="button" onClick={() => onChange(null)} className={secondaryButtonClass} title="Tirar atalho">
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className={secondaryButtonClass}
+            title="Tirar atalho"
+          >
             ✕
           </button>
         )}
@@ -226,8 +238,8 @@ export function AppSettings() {
   if (!isDesktop) {
     return (
       <p className="text-sm text-zinc-400">
-        Estas opções só existem no app de desktop do NexusVoice (ícone na bandeja, iniciar com o Windows, detecção de
-        jogos e atualizações).
+        Estas opções só existem no app de desktop do NexusVoice (ícone na bandeja, iniciar com o
+        Windows, detecção de jogos e atualizações).
       </p>
     );
   }
@@ -236,7 +248,9 @@ export function AppSettings() {
     setChecking(true);
     const info = await checkForUpdates(true);
     setChecking(false);
-    setCheckResult(info ? `Versão ${info.version} disponível!` : 'Você já está na versão mais nova.');
+    setCheckResult(
+      info ? `Versão ${info.version} disponível!` : 'Você já está na versão mais nova.',
+    );
   }
 
   return (
@@ -259,7 +273,10 @@ export function AppSettings() {
         />
       </Section>
 
-      <Section title="Jogos" hint="Mostra para os outros o jogo que você está jogando. Só o nome do jogo sai do seu PC.">
+      <Section
+        title="Jogos"
+        hint="Mostra para os outros o jogo que você está jogando. Só o nome do jogo sai do seu PC."
+      >
         <Toggle
           label="Mostrar o jogo que estou jogando"
           checked={settings.gameDetection}
@@ -281,7 +298,12 @@ export function AppSettings() {
         />
         <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
           <span>Versão instalada: {version ?? '?'}</span>
-          <button type="button" disabled={checking} onClick={() => void handleCheck()} className={secondaryButtonClass}>
+          <button
+            type="button"
+            disabled={checking}
+            onClick={() => void handleCheck()}
+            className={secondaryButtonClass}
+          >
             {checking ? 'Procurando...' : 'Procurar agora'}
           </button>
           {checkResult && <span>{checkResult}</span>}

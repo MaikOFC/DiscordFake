@@ -55,9 +55,7 @@ export function toPublicUser(row: UserRow): PublicUser {
 }
 
 export function getUserRow(userId: string): UserRow | undefined {
-  return db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as
-    | UserRow
-    | undefined;
+  return db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as UserRow | undefined;
 }
 
 export function getPublicUser(userId: string): PublicUser | null {
@@ -88,14 +86,7 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
   if (parts.length !== 6 || parts[0] !== 'scrypt') {
     return false;
   }
-  const [, n, r, p, saltB64, hashB64] = parts as [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-  ];
+  const [, n, r, p, saltB64, hashB64] = parts as [string, string, string, string, string, string];
   const expected = Buffer.from(hashB64, 'base64');
   const actual = await scrypt(password, Buffer.from(saltB64, 'base64'), expected.length, {
     N: Number(n),
@@ -175,9 +166,7 @@ export async function registerUser(body: unknown): Promise<ActionResult<AuthResu
   const displayName = validateDisplayName(input.displayName ?? username);
   if (typeof displayName !== 'string') return displayName;
 
-  const taken = db
-    .prepare('SELECT 1 FROM users WHERE username = ? COLLATE NOCASE')
-    .get(username);
+  const taken = db.prepare('SELECT 1 FROM users WHERE username = ? COLLATE NOCASE').get(username);
   if (taken) {
     return { ok: false, error: 'Esse nome de usuário já está em uso.' };
   }
@@ -213,9 +202,8 @@ export async function loginUser(body: unknown): Promise<ActionResult<AuthResult>
     return { ok: false, error: genericError };
   }
 
-  const row = db
-    .prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE')
-    .get(username) as UserRow | undefined;
+  const row = db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username) as
+    UserRow | undefined;
 
   if (!row || !(await verifyPassword(password, row.password_hash))) {
     return { ok: false, error: genericError };
@@ -224,10 +212,7 @@ export async function loginUser(body: unknown): Promise<ActionResult<AuthResult>
   return { ok: true, data: { token: createSession(row.id), user: toPublicUser(row) } };
 }
 
-export async function changePassword(
-  userId: string,
-  body: unknown,
-): Promise<ActionResult> {
+export async function changePassword(userId: string, body: unknown): Promise<ActionResult> {
   const input = (body ?? {}) as Record<string, unknown>;
   const current = typeof input.currentPassword === 'string' ? input.currentPassword : '';
   const next = validatePassword(input.newPassword);
@@ -292,9 +277,7 @@ const LOGIN_MAX_ATTEMPTS = 10;
 
 export function allowLoginAttempt(ip: string): boolean {
   const now = Date.now();
-  const recent = (loginAttemptsByIp.get(ip) ?? []).filter(
-    (ts) => now - ts < LOGIN_WINDOW_MS,
-  );
+  const recent = (loginAttemptsByIp.get(ip) ?? []).filter((ts) => now - ts < LOGIN_WINDOW_MS);
   if (recent.length >= LOGIN_MAX_ATTEMPTS) {
     loginAttemptsByIp.set(ip, recent);
     return false;

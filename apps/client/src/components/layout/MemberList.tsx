@@ -3,7 +3,15 @@ import { useAppStore } from '../../store/useAppStore';
 import { Avatar } from '../Avatar';
 import { openProfileAt } from '../ProfileCard';
 
-function MemberRow({ member, server, isMe }: { member: ServerMember; server: ServerDetails; isMe: boolean }) {
+function MemberRow({
+  member,
+  server,
+  isMe,
+}: {
+  member: ServerMember;
+  server: ServerDetails;
+  isMe: boolean;
+}) {
   const myActivity = useAppStore((s) => s.gameActivity);
   const activity = isMe ? myActivity : member.activity;
   return (
@@ -15,7 +23,12 @@ function MemberRow({ member, server, isMe }: { member: ServerMember; server: Ser
           member.online || isMe ? '' : 'opacity-45'
         }`}
       >
-        <Avatar url={member.avatarUrl} name={member.displayName} size={32} status={member.online || isMe ? 'online' : 'offline'} />
+        <Avatar
+          url={member.avatarUrl}
+          name={member.displayName}
+          size={32}
+          status={member.online || isMe ? 'online' : 'offline'}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
             <span className="truncate text-sm text-zinc-100">{member.displayName}</span>

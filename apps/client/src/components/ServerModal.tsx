@@ -6,10 +6,7 @@ interface ServerModalProps {
   onClose: () => void;
 }
 
-export function ServerModal({
-  initialMode = 'create',
-  onClose,
-}: ServerModalProps) {
+export function ServerModal({ initialMode = 'create', onClose }: ServerModalProps) {
   const [mode, setMode] = useState<'create' | 'join'>(initialMode);
   const [serverName, setServerName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
@@ -22,9 +19,7 @@ export function ServerModal({
     setLoading(true);
 
     const result =
-      mode === 'create'
-        ? await createServer(serverName)
-        : await joinServerByInvite(inviteCode);
+      mode === 'create' ? await createServer(serverName) : await joinServerByInvite(inviteCode);
 
     setLoading(false);
     if (!result.ok) {
@@ -58,9 +53,7 @@ export function ServerModal({
               setError(null);
             }}
             className={`cursor-pointer rounded-md py-1.5 text-xs font-semibold transition ${
-              mode === 'create'
-                ? 'bg-emerald-600 text-white'
-                : 'text-zinc-400 hover:text-white'
+              mode === 'create' ? 'bg-emerald-600 text-white' : 'text-zinc-400 hover:text-white'
             }`}
           >
             Criar novo
@@ -72,9 +65,7 @@ export function ServerModal({
               setError(null);
             }}
             className={`cursor-pointer rounded-md py-1.5 text-xs font-semibold transition ${
-              mode === 'join'
-                ? 'bg-emerald-600 text-white'
-                : 'text-zinc-400 hover:text-white'
+              mode === 'join' ? 'bg-emerald-600 text-white' : 'text-zinc-400 hover:text-white'
             }`}
           >
             Usar convite
@@ -146,11 +137,7 @@ export function ServerModal({
               disabled={loading}
               className="cursor-pointer rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
             >
-              {loading
-                ? 'Aguarde...'
-                : mode === 'create'
-                  ? 'Criar servidor'
-                  : 'Entrar no servidor'}
+              {loading ? 'Aguarde...' : mode === 'create' ? 'Criar servidor' : 'Entrar no servidor'}
             </button>
           </div>
         </form>

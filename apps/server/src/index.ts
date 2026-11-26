@@ -320,11 +320,7 @@ io.on('connection', (socket: AppSocket) => {
   });
 
   socket.on('channel:delete', (payload, ack) => {
-    if (
-      !payload ||
-      typeof payload.serverId !== 'string' ||
-      typeof payload.channelId !== 'string'
-    ) {
+    if (!payload || typeof payload.serverId !== 'string' || typeof payload.channelId !== 'string') {
       ack?.({ ok: false, error: 'Dados inválidos para apagar canal.' });
       return;
     }
@@ -515,7 +511,11 @@ io.on('connection', (socket: AppSocket) => {
 });
 
 /** Busca as prévias de link depois de mandar a mensagem, para não atrasar o envio. */
-async function attachLinkPreviews(messageId: string, serverId: string, content: string): Promise<void> {
+async function attachLinkPreviews(
+  messageId: string,
+  serverId: string,
+  content: string,
+): Promise<void> {
   if (!/https?:\/\//i.test(content)) return;
   const previews = await buildLinkPreviews(content);
   if (previews.length === 0) return;
@@ -632,7 +632,9 @@ fastify.patch('/api/profile', async (request, reply) => {
   }
   if (body.bio !== undefined) {
     if (typeof body.bio !== 'string' || body.bio.length > LIMITS.bioMax) {
-      return reply.code(400).send({ ok: false, error: `A bio pode ter até ${LIMITS.bioMax} caracteres.` });
+      return reply
+        .code(400)
+        .send({ ok: false, error: `A bio pode ter até ${LIMITS.bioMax} caracteres.` });
     }
     db.prepare('UPDATE users SET bio = ? WHERE id = ?').run(body.bio.trim(), userId);
   }
@@ -715,9 +717,12 @@ startBackupSchedule((msg, error) => {
   else fastify.log.info(msg);
 });
 
-setInterval(() => {
-  void cleanupOrphanAttachments();
-}, 30 * 60 * 1000).unref();
+setInterval(
+  () => {
+    void cleanupOrphanAttachments();
+  },
+  30 * 60 * 1000,
+).unref();
 
 try {
   await fastify.listen({ port: PORT, host: '0.0.0.0' });

@@ -75,7 +75,9 @@ export function WorkspaceLayout() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-white">
                   {activeChannel ? (
                     <>
-                      <span className="text-zinc-400">{activeChannel.type === 'text' ? '#' : '🔊'}</span>
+                      <span className="text-zinc-400">
+                        {activeChannel.type === 'text' ? '#' : '🔊'}
+                      </span>
                       <span>{activeChannel.name}</span>
                     </>
                   ) : (
@@ -83,7 +85,8 @@ export function WorkspaceLayout() {
                   )}
                 </div>
                 <span className="text-xs text-zinc-400">
-                  {activeServer.members.length} {activeServer.members.length === 1 ? 'membro' : 'membros'}
+                  {activeServer.members.length}{' '}
+                  {activeServer.members.length === 1 ? 'membro' : 'membros'}
                 </span>
               </header>
 
@@ -103,9 +106,12 @@ export function WorkspaceLayout() {
           ) : (
             <div className="flex flex-1 items-center justify-center p-6">
               <div className="max-w-md rounded-xl border border-zinc-700/60 bg-[#2b2d31] p-6 text-center shadow-xl">
-                <h1 className="text-xl font-bold text-white">Bem-vindo ao NexusVoice, {me?.displayName}!</h1>
+                <h1 className="text-xl font-bold text-white">
+                  Bem-vindo ao NexusVoice, {me?.displayName}!
+                </h1>
                 <p className="mt-2 text-sm text-zinc-400">
-                  Para começar, crie o seu próprio servidor ou entre em um usando um código de convite.
+                  Para começar, crie o seu próprio servidor ou entre em um usando um código de
+                  convite.
                 </p>
                 <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
                   <button

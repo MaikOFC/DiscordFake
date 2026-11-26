@@ -64,7 +64,11 @@ function StillOrAnimatedImage({
   }
   return (
     <>
-      <canvas ref={canvasRef} className={`${className} ${frameReady ? '' : 'hidden'}`} aria-label={alt} />
+      <canvas
+        ref={canvasRef}
+        className={`${className} ${frameReady ? '' : 'hidden'}`}
+        aria-label={alt}
+      />
       {!frameReady && <img src={src} alt={alt} className={className} draggable={false} />}
     </>
   );
@@ -153,13 +157,21 @@ export function ProfileBanner({
     return (
       <div
         className="w-full"
-        style={{ height, background: `linear-gradient(135deg, hsl(${hashHue(name)} 50% 32%), #1e1f22)` }}
+        style={{
+          height,
+          background: `linear-gradient(135deg, hsl(${hashHue(name)} 50% 32%), #1e1f22)`,
+        }}
       />
     );
   }
   return (
     <div className="w-full overflow-hidden bg-[#1e1f22]" style={{ height }}>
-      <StillOrAnimatedImage src={fullUrl} animate={animate} alt="" className="h-full w-full object-cover" />
+      <StillOrAnimatedImage
+        src={fullUrl}
+        animate={animate}
+        alt=""
+        className="h-full w-full object-cover"
+      />
     </div>
   );
 }

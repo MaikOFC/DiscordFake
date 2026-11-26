@@ -109,8 +109,7 @@ function MessageItemBase({
     await deleteTextMessage(message);
   }
 
-  const openProfile = (event: MouseEvent): void =>
-    openProfileAt(message.authorId, serverId, event);
+  const openProfile = (event: MouseEvent): void => openProfileAt(message.authorId, serverId, event);
 
   return (
     <div
@@ -196,7 +195,10 @@ function MessageItemBase({
               <div className="whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-200">
                 {renderMarkdown(message.content, markdown)}
                 {message.editedAt && (
-                  <span className="ml-1 text-[10px] text-zinc-500" title={formatFullDate(message.editedAt)}>
+                  <span
+                    className="ml-1 text-[10px] text-zinc-500"
+                    title={formatFullDate(message.editedAt)}
+                  >
                     (editado)
                   </span>
                 )}

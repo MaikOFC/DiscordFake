@@ -1,8 +1,4 @@
-import type {
-  ActionResult,
-  ChannelType,
-  VoicePresenceUser,
-} from '@nexusvoice/shared';
+import type { ActionResult, ChannelType, VoicePresenceUser } from '@nexusvoice/shared';
 import { getPublicUser } from './auth.js';
 import { db } from './db.js';
 import { isServerMember } from './servers.js';
@@ -115,14 +111,10 @@ export function updateVoicePresence(
   voiceBySocket.set(socketId, {
     ...current,
     isMuted: typeof patch.isMuted === 'boolean' ? patch.isMuted : current.isMuted,
-    isDeafened:
-      typeof patch.isDeafened === 'boolean' ? patch.isDeafened : current.isDeafened,
-    isCameraOn:
-      typeof patch.isCameraOn === 'boolean' ? patch.isCameraOn : current.isCameraOn,
+    isDeafened: typeof patch.isDeafened === 'boolean' ? patch.isDeafened : current.isDeafened,
+    isCameraOn: typeof patch.isCameraOn === 'boolean' ? patch.isCameraOn : current.isCameraOn,
     isScreenSharing:
-      typeof patch.isScreenSharing === 'boolean'
-        ? patch.isScreenSharing
-        : current.isScreenSharing,
+      typeof patch.isScreenSharing === 'boolean' ? patch.isScreenSharing : current.isScreenSharing,
   });
 
   return current.serverId;

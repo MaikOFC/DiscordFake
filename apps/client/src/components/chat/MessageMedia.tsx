@@ -26,7 +26,11 @@ function Lightbox({ src, onClose }: { src: string; onClose: () => void }) {
       role="dialog"
       aria-label="Imagem ampliada"
     >
-      <img src={src} alt="" className="max-h-full max-w-full rounded-lg object-contain shadow-2xl" />
+      <img
+        src={src}
+        alt=""
+        className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+      />
       <button
         type="button"
         onClick={(e) => {
@@ -120,7 +124,10 @@ export function AttachmentList({
         }
         if (attachment.mimeType.startsWith('audio/')) {
           return (
-            <div key={attachment.id} className="max-w-sm rounded-lg border border-zinc-700/80 bg-[#2b2d31] p-2">
+            <div
+              key={attachment.id}
+              className="max-w-sm rounded-lg border border-zinc-700/80 bg-[#2b2d31] p-2"
+            >
               <div className="mb-1 truncate text-xs text-zinc-300">{attachment.fileName}</div>
               <audio src={url} controls preload="metadata" className="w-full" />
             </div>
@@ -133,7 +140,8 @@ export function AttachmentList({
 }
 
 const IMAGE_URL = /^https:\/\/[^\s]+\.(?:png|jpe?g|gif|webp)(?:\?[^\s]*)?$/i;
-const INTERNAL_HOST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|26\.|169\.254\.)/;
+const INTERNAL_HOST =
+  /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|26\.|169\.254\.)/;
 
 /** Links diretos para imagem ou GIF (Tenor, Giphy, Imgur...) aparecem como imagem. */
 export function inlineImageUrls(content: string): string[] {
@@ -162,7 +170,13 @@ export function InlineImages({ urls, onMediaLoad }: { urls: string[]; onMediaLoa
   );
 }
 
-export function LinkPreviewList({ previews, skipUrls }: { previews: LinkPreview[]; skipUrls: string[] }) {
+export function LinkPreviewList({
+  previews,
+  skipUrls,
+}: {
+  previews: LinkPreview[];
+  skipUrls: string[];
+}) {
   const visible = previews.filter((p) => !skipUrls.includes(p.url));
   if (visible.length === 0) return null;
   return (
@@ -174,7 +188,9 @@ export function LinkPreviewList({ previews, skipUrls }: { previews: LinkPreview[
             key={preview.url}
             className="max-w-md overflow-hidden rounded-lg border-l-4 border-emerald-600/70 bg-[#2b2d31] p-3"
           >
-            {preview.siteName && <div className="text-[11px] text-zinc-400">{preview.siteName}</div>}
+            {preview.siteName && (
+              <div className="text-[11px] text-zinc-400">{preview.siteName}</div>
+            )}
             <div className="mt-0.5 text-sm font-semibold">
               <ExternalLink href={preview.url}>{preview.title}</ExternalLink>
             </div>

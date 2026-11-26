@@ -40,7 +40,10 @@ export function AccountSettings() {
     setBusy(null);
     if (result.ok && result.data) {
       setMe(result.data);
-      setStatus({ ok: true, text: kind === 'avatar' ? 'Avatar atualizado!' : 'Banner atualizado!' });
+      setStatus({
+        ok: true,
+        text: kind === 'avatar' ? 'Avatar atualizado!' : 'Banner atualizado!',
+      });
     } else {
       setStatus({ ok: false, text: result.error ?? 'Não foi possível enviar a imagem.' });
     }
@@ -121,7 +124,11 @@ export function AccountSettings() {
             {busy === 'avatar' ? 'Enviando...' : 'Trocar avatar'}
           </button>
           {me.avatarUrl && (
-            <button type="button" onClick={() => void removeImage('avatar')} className={secondaryButtonClass}>
+            <button
+              type="button"
+              onClick={() => void removeImage('avatar')}
+              className={secondaryButtonClass}
+            >
               Tirar avatar
             </button>
           )}
@@ -134,7 +141,11 @@ export function AccountSettings() {
             {busy === 'banner' ? 'Enviando...' : 'Trocar banner'}
           </button>
           {me.bannerUrl && (
-            <button type="button" onClick={() => void removeImage('banner')} className={secondaryButtonClass}>
+            <button
+              type="button"
+              onClick={() => void removeImage('banner')}
+              className={secondaryButtonClass}
+            >
               Tirar banner
             </button>
           )}
@@ -207,7 +218,9 @@ export function AccountSettings() {
           />
           <button
             type="submit"
-            disabled={busy === 'password' || !currentPassword || newPassword.length < LIMITS.passwordMin}
+            disabled={
+              busy === 'password' || !currentPassword || newPassword.length < LIMITS.passwordMin
+            }
             className={buttonClass}
           >
             Trocar senha

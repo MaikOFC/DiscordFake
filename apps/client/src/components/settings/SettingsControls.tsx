@@ -1,6 +1,14 @@
 import type { ReactNode } from 'react';
 
-export function Section({ title, children, hint }: { title: string; children: ReactNode; hint?: string }) {
+export function Section({
+  title,
+  children,
+  hint,
+}: {
+  title: string;
+  children: ReactNode;
+  hint?: string;
+}) {
   return (
     <section className="mb-6">
       <h3 className="mb-1 text-[11px] font-bold uppercase tracking-wide text-zinc-400">{title}</h3>
@@ -59,7 +67,9 @@ export function RadioGroup<T extends string>({
         <label
           key={option.value}
           className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 ${
-            value === option.value ? 'border-emerald-500/70 bg-emerald-500/10' : 'border-transparent bg-[#2b2d31]'
+            value === option.value
+              ? 'border-emerald-500/70 bg-emerald-500/10'
+              : 'border-transparent bg-[#2b2d31]'
           }`}
         >
           <input
@@ -70,7 +80,9 @@ export function RadioGroup<T extends string>({
           />
           <span>
             <span className="block text-sm text-zinc-100">{option.label}</span>
-            {option.description && <span className="block text-xs text-zinc-400">{option.description}</span>}
+            {option.description && (
+              <span className="block text-xs text-zinc-400">{option.description}</span>
+            )}
           </span>
         </label>
       ))}

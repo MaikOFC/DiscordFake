@@ -71,7 +71,10 @@ export async function buildVoiceGraph(ctx: AudioContext, track: MediaStreamTrack
   let rnnoise: RnnoiseWorkletNode | null = null;
   if (settings.noiseSuppression === 'rnnoise') {
     try {
-      rnnoise = new RnnoiseWorkletNode(ctx, { maxChannels: 1, wasmBinary: await getRnnoiseBinary() });
+      rnnoise = new RnnoiseWorkletNode(ctx, {
+        maxChannels: 1,
+        wasmBinary: await getRnnoiseBinary(),
+      });
       last.connect(rnnoise);
       last = rnnoise;
     } catch {

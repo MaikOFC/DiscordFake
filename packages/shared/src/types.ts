@@ -167,21 +167,14 @@ export interface ServerToClientEvents {
   'server:deleted': (payload: { serverId: string }) => void;
   'message:new': (payload: { message: ChatMessage }) => void;
   'message:updated': (payload: { message: ChatMessage }) => void;
-  'message:deleted': (payload: {
-    serverId: string;
-    channelId: string;
-    messageId: string;
-  }) => void;
+  'message:deleted': (payload: { serverId: string; channelId: string; messageId: string }) => void;
   'typing:update': (payload: {
     serverId: string;
     channelId: string;
     userId: string;
     nickname: string;
   }) => void;
-  'presence:updated': (payload: {
-    serverId: string;
-    users: VoicePresenceUser[];
-  }) => void;
+  'presence:updated': (payload: { serverId: string; users: VoicePresenceUser[] }) => void;
   'server:error': (payload: { message: string }) => void;
 }
 
@@ -195,14 +188,8 @@ export interface ClientToServerEvents {
     payload: { inviteCode: string },
     ack?: (result: ActionResult<ServerDetails>) => void,
   ) => void;
-  'server:leave': (
-    payload: { serverId: string },
-    ack?: (result: ActionResult) => void,
-  ) => void;
-  'server:delete': (
-    payload: { serverId: string },
-    ack?: (result: ActionResult) => void,
-  ) => void;
+  'server:leave': (payload: { serverId: string }, ack?: (result: ActionResult) => void) => void;
+  'server:delete': (payload: { serverId: string }, ack?: (result: ActionResult) => void) => void;
   'channel:create': (
     payload: { serverId: string; name: string; type: ChannelType },
     ack?: (result: ActionResult<Channel>) => void,
@@ -228,10 +215,7 @@ export interface ClientToServerEvents {
     payload: { messageId: string; content: string },
     ack?: (result: ActionResult<ChatMessage>) => void,
   ) => void;
-  'message:delete': (
-    payload: { messageId: string },
-    ack?: (result: ActionResult) => void,
-  ) => void;
+  'message:delete': (payload: { messageId: string }, ack?: (result: ActionResult) => void) => void;
   'typing:start': (payload: { channelId: string }) => void;
   'presence:join_voice': (
     payload: { channelId: string; isMuted: boolean; isDeafened: boolean },

@@ -71,9 +71,7 @@ export function getServerDetails(
   status: MemberStatusLookup,
 ): ServerDetails | null {
   const server = db
-    .prepare(
-      'SELECT id, name, invite_code, owner_id, created_at FROM servers WHERE id = ?',
-    )
+    .prepare('SELECT id, name, invite_code, owner_id, created_at FROM servers WHERE id = ?')
     .get(serverId) as ServerRow | undefined;
 
   if (!server) {
@@ -144,10 +142,7 @@ export function getUserServerIds(userId: string): string[] {
   return rows.map((r) => r.server_id);
 }
 
-export function getServersForUser(
-  userId: string,
-  status: MemberStatusLookup,
-): ServerDetails[] {
+export function getServersForUser(userId: string, status: MemberStatusLookup): ServerDetails[] {
   const result: ServerDetails[] = [];
   for (const id of getUserServerIds(userId)) {
     const details = getServerDetails(id, status);
@@ -168,10 +163,7 @@ export function isServerMember(serverId: string, userId: string): boolean {
 
 /** Mantém a coluna antiga `nickname` igual ao nome de exibição da conta. */
 export function syncMemberNickname(userId: string, nickname: string): void {
-  db.prepare('UPDATE server_members SET nickname = ? WHERE user_id = ?').run(
-    nickname,
-    userId,
-  );
+  db.prepare('UPDATE server_members SET nickname = ? WHERE user_id = ?').run(nickname, userId);
 }
 
 export function createServer(
@@ -233,9 +225,8 @@ export function joinServerByInvite(
     return { ok: false, error: 'Digite um código de convite válido.' };
   }
 
-  const server = db
-    .prepare('SELECT id FROM servers WHERE invite_code = ?')
-    .get(inviteCode) as { id: string } | undefined;
+  const server = db.prepare('SELECT id FROM servers WHERE invite_code = ?').get(inviteCode) as
+    { id: string } | undefined;
 
   if (!server) {
     return {
@@ -260,9 +251,8 @@ export function joinServerByInvite(
 }
 
 export function leaveServer(serverId: string, userId: string): ActionResult {
-  const server = db
-    .prepare('SELECT owner_id FROM servers WHERE id = ?')
-    .get(serverId) as { owner_id: string } | undefined;
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
 
   if (!server) {
     return { ok: false, error: 'Servidor não encontrado.' };
@@ -284,9 +274,8 @@ export function leaveServer(serverId: string, userId: string): ActionResult {
 }
 
 export function deleteServer(serverId: string, requesterId: string): ActionResult {
-  const server = db
-    .prepare('SELECT owner_id FROM servers WHERE id = ?')
-    .get(serverId) as { owner_id: string } | undefined;
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
 
   if (!server) {
     return { ok: false, error: 'Servidor não encontrado.' };
@@ -313,9 +302,8 @@ export function createChannel(
   type: ChannelType,
   requesterId: string,
 ): ActionResult<Channel> {
-  const server = db
-    .prepare('SELECT owner_id FROM servers WHERE id = ?')
-    .get(serverId) as { owner_id: string } | undefined;
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
 
   if (!server) {
     return { ok: false, error: 'Servidor não encontrado.' };
@@ -369,9 +357,8 @@ export function deleteChannel(
   channelId: string,
   requesterId: string,
 ): ActionResult {
-  const server = db
-    .prepare('SELECT owner_id FROM servers WHERE id = ?')
-    .get(serverId) as { owner_id: string } | undefined;
+  const server = db.prepare('SELECT owner_id FROM servers WHERE id = ?').get(serverId) as
+    { owner_id: string } | undefined;
 
   if (!server) {
     return { ok: false, error: 'Servidor não encontrado.' };

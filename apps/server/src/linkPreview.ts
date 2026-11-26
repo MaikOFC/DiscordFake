@@ -71,13 +71,19 @@ const safeLookup: LookupFunction = (hostname, options, callback) => {
   });
 };
 
-function fetchHtml(url: URL, redirectsLeft: number): Promise<{ html: string; finalUrl: URL } | null> {
+function fetchHtml(
+  url: URL,
+  redirectsLeft: number,
+): Promise<{ html: string; finalUrl: URL } | null> {
   return new Promise((resolve) => {
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
       resolve(null);
       return;
     }
-    if (isIP(url.hostname.replace(/^\[|\]$/g, '')) && isBlockedIP(url.hostname.replace(/^\[|\]$/g, ''))) {
+    if (
+      isIP(url.hostname.replace(/^\[|\]$/g, '')) &&
+      isBlockedIP(url.hostname.replace(/^\[|\]$/g, ''))
+    ) {
       resolve(null);
       return;
     }
@@ -129,7 +135,9 @@ function fetchHtml(url: URL, redirectsLeft: number): Promise<{ html: string; fin
           }
           chunks.push(chunk);
         });
-        res.on('end', () => resolve({ html: Buffer.concat(chunks).toString('utf8'), finalUrl: url }));
+        res.on('end', () =>
+          resolve({ html: Buffer.concat(chunks).toString('utf8'), finalUrl: url }),
+        );
         res.on('error', () => resolve(null));
       },
     );
@@ -177,8 +185,11 @@ async function buildPreview(rawUrl: string): Promise<LinkPreview | null> {
     if (result) {
       const head = result.html.slice(0, MAX_HTML_BYTES);
       const titleTag = /<title[^>]*>([^<]*)<\/title>/i.exec(head)?.[1];
-      const title = readMeta(head, ['og:title', 'twitter:title']) ?? (titleTag ? decodeEntities(titleTag) : null);
-      const description = readMeta(head, ['og:description', 'twitter:description', 'description']) ?? '';
+      const title =
+        readMeta(head, ['og:title', 'twitter:title']) ??
+        (titleTag ? decodeEntities(titleTag) : null);
+      const description =
+        readMeta(head, ['og:description', 'twitter:description', 'description']) ?? '';
       const image = readMeta(head, ['og:image', 'twitter:image']);
       let imageUrl: string | null = null;
       if (image) {

@@ -100,7 +100,10 @@ function renderInline(text: string, ctx: MarkdownContext, keyPrefix: string): Re
     switch (type) {
       case 'code':
         nodes.push(
-          <code key={key} className="rounded bg-[#1e1f22] px-1 py-0.5 font-mono text-[0.85em] text-zinc-200">
+          <code
+            key={key}
+            className="rounded bg-[#1e1f22] px-1 py-0.5 font-mono text-[0.85em] text-zinc-200"
+          >
             {match[1]}
           </code>,
         );
@@ -188,6 +191,8 @@ export function renderMarkdown(content: string, ctx: MarkdownContext): ReactNode
 /** URLs de vídeo do YouTube viram miniatura clicável. */
 export function youtubeId(url: string): string | null {
   const match =
-    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(url);
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(
+      url,
+    );
   return match?.[1] ?? null;
 }

@@ -39,7 +39,9 @@ export function AuthScreen() {
     setServerStatus({ ok: true, text: 'Testando...' });
     const result = await checkServer(url);
     setServerStatus(
-      result.ok ? { ok: true, text: 'Servidor encontrado!' } : { ok: false, text: result.error ?? 'Falhou.' },
+      result.ok
+        ? { ok: true, text: 'Servidor encontrado!' }
+        : { ok: false, text: result.error ?? 'Falhou.' },
     );
   }
 
@@ -122,7 +124,8 @@ export function AuthScreen() {
             />
             {mode === 'register' && (
               <p className="mt-1 text-xs text-zinc-500">
-                Letras sem acento, números, ponto e sublinhado. É o que os outros usam para te marcar com @.
+                Letras sem acento, números, ponto e sublinhado. É o que os outros usam para te
+                marcar com @.
               </p>
             )}
           </div>
@@ -177,7 +180,9 @@ export function AuthScreen() {
                 required
                 className={inputClass}
               />
-              <p className="mt-1 text-xs text-zinc-500">Pelo menos {LIMITS.passwordMin} caracteres.</p>
+              <p className="mt-1 text-xs text-zinc-500">
+                Pelo menos {LIMITS.passwordMin} caracteres.
+              </p>
             </div>
           )}
 
@@ -226,8 +231,8 @@ export function AuthScreen() {
                   </p>
                 )}
                 <p className="text-xs text-zinc-500">
-                  Use o IP do Radmin de quem hospeda (a porta 3001 entra sozinha). No PC do servidor, use
-                  localhost.
+                  Use o IP do Radmin de quem hospeda (a porta 3001 entra sozinha). No PC do
+                  servidor, use localhost.
                 </p>
               </div>
             )}
@@ -250,8 +255,8 @@ export function AuthScreen() {
 
         {!isDesktop && (
           <p className="mt-4 text-center text-[11px] text-zinc-500">
-            Pelo navegador, microfone e câmera só funcionam em localhost ou HTTPS. Para usar pela rede, prefira o
-            app do NexusVoice.
+            Pelo navegador, microfone e câmera só funcionam em localhost ou HTTPS. Para usar pela
+            rede, prefira o app do NexusVoice.
           </p>
         )}
       </div>

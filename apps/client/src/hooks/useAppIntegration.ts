@@ -101,7 +101,8 @@ export function useAppIntegration(): void {
         setPushToTalk(down);
         return;
       }
-      if (down && !repeat && !typing) runHotkeyAction(kind === 'mute' ? 'toggle-mute' : 'toggle-deafen');
+      if (down && !repeat && !typing)
+        runHotkeyAction(kind === 'mute' ? 'toggle-mute' : 'toggle-deafen');
     };
     const onKeyDown = (e: KeyboardEvent): void => {
       const typing = isTypingTarget(e.target) && e.key.length === 1;

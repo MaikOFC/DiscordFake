@@ -8,7 +8,13 @@ import {
   type ClipboardEvent,
   type KeyboardEvent,
 } from 'react';
-import { LIMITS, type Channel, type ChatMessage, type MessageAttachment, type ServerMember } from '@nexusvoice/shared';
+import {
+  LIMITS,
+  type Channel,
+  type ChatMessage,
+  type MessageAttachment,
+  type ServerMember,
+} from '@nexusvoice/shared';
 import { uploadAttachment } from '../../lib/api';
 import { emitTyping, sendTextMessage } from '../../services/socket';
 import { Avatar } from '../Avatar';
@@ -77,7 +83,9 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
       : members
           .filter((m) => {
             const q = mentionQuery.toLowerCase();
-            return m.username.toLowerCase().startsWith(q) || m.displayName.toLowerCase().includes(q);
+            return (
+              m.username.toLowerCase().startsWith(q) || m.displayName.toLowerCase().includes(q)
+            );
           })
           .slice(0, 8);
 
@@ -128,12 +136,20 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
       const { promise, cancel } = uploadAttachment(file, (progress) =>
         setUploads((list) => list.map((u) => (u.localId === localId ? { ...u, progress } : u))),
       );
-      setUploads((list) => [...list, { localId, file, progress: 0, result: null, error: null, cancel }]);
+      setUploads((list) => [
+        ...list,
+        { localId, file, progress: 0, result: null, error: null, cancel },
+      ]);
       void promise.then((result) =>
         setUploads((list) =>
           list.map((u) =>
             u.localId === localId
-              ? { ...u, progress: 1, result: result.data ?? null, error: result.ok ? null : (result.error ?? 'Falhou.') }
+              ? {
+                  ...u,
+                  progress: 1,
+                  result: result.data ?? null,
+                  error: result.ok ? null : (result.error ?? 'Falhou.'),
+                }
               : u,
           ),
         ),
@@ -263,7 +279,8 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
         {replyTo && (
           <div className="flex items-center justify-between gap-2 rounded-t-xl border-b border-zinc-700/80 bg-[#2b2d31] px-3 py-1.5 text-xs text-zinc-300">
             <span className="truncate">
-              Respondendo a <span className="font-semibold text-white">{replyTo.authorNickname}</span>
+              Respondendo a{' '}
+              <span className="font-semibold text-white">{replyTo.authorNickname}</span>
             </span>
             <button
               type="button"
@@ -356,7 +373,9 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
             <button
               type="button"
               onClick={() => void submit()}
-              disabled={sending || uploading || (trimmedLength === 0 && readyAttachments.length === 0)}
+              disabled={
+                sending || uploading || (trimmedLength === 0 && readyAttachments.length === 0)
+              }
               className="cursor-pointer rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {uploading ? 'Enviando arquivo...' : 'Enviar'}
