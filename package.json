@@ -1,0 +1,20 @@
+{
+  "name": "nexusvoice",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,green \"npm run dev --workspace=@nexusvoice/server\" \"npm run dev --workspace=@nexusvoice/client\"",
+    "dev:server": "npm run dev --workspace=@nexusvoice/server",
+    "dev:client": "npm run dev --workspace=@nexusvoice/client",
+    "livekit": "tools\\livekit\\livekit-server.exe --dev",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.2"
+  }
+}
