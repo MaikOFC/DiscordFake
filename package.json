@@ -10,6 +10,8 @@
     "dev": "concurrently -n server,client -c cyan,green \"npm run dev --workspace=@nexusvoice/server\" \"npm run dev --workspace=@nexusvoice/client\"",
     "dev:server": "npm run dev --workspace=@nexusvoice/server",
     "dev:client": "npm run dev --workspace=@nexusvoice/client",
+    "tauri:dev": "npm run tauri --workspace=@nexusvoice/client -- dev",
+    "tauri:build": "npm run tauri --workspace=@nexusvoice/client -- build",
     "livekit": "tools\\livekit\\livekit-server.exe --dev",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },

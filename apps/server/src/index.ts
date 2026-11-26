@@ -45,6 +45,12 @@ if (existsSync(rootEnvPath)) {
 
 const PORT = Number(process.env.PORT ?? 3001);
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
+const ALLOWED_ORIGINS = [
+  CLIENT_ORIGIN,
+  'http://tauri.localhost',
+  'https://tauri.localhost',
+  'tauri://localhost',
+];
 
 const NICKNAME_MIN = 2;
 const NICKNAME_MAX = 32;
@@ -56,7 +62,7 @@ const fastify = Fastify({
 });
 
 await fastify.register(cors, {
-  origin: CLIENT_ORIGIN,
+  origin: ALLOWED_ORIGINS,
   credentials: true,
 });
 
@@ -64,7 +70,7 @@ const io = new SocketIOServer<ClientToServerEvents, ServerToClientEvents>(
   fastify.server,
   {
     cors: {
-      origin: CLIENT_ORIGIN,
+      origin: ALLOWED_ORIGINS,
       credentials: true,
     },
   },

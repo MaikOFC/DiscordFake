@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { VoicePresenceUser } from '@nexusvoice/shared';
 import {
   attachCameraTrack,
   attachScreenTrack,
@@ -8,6 +9,8 @@ import {
   useAppStore,
   type VoiceParticipantInfo,
 } from '../store/useAppStore';
+
+const EMPTY_PRESENCE: VoicePresenceUser[] = [];
 
 function getUserInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -217,7 +220,7 @@ export function VideoGrid({ serverId }: VideoGridProps) {
     (state) => state.setFocusedScreenUserId,
   );
   const serverPresence = useAppStore(
-    (state) => state.voicePresenceByServer[serverId] ?? [],
+    (state) => state.voicePresenceByServer[serverId] ?? EMPTY_PRESENCE,
   );
 
   const activeSharers = voiceParticipants.filter((p) => p.isScreenSharing);
