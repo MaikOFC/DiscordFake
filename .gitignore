@@ -8,6 +8,9 @@ src-tauri/target/
 *.db
 *.sqlite
 *.sqlite3
+# Arquivos auxiliares que o SQLite cria ao lado do banco no modo WAL
+*.db-shm
+*.db-wal
 
 # Binário local do LiveKit (cada pessoa baixa o seu)
 tools/livekit/
