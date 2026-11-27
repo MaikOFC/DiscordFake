@@ -1,24 +1,63 @@
 /**
  * Endereço do servidor NexusVoice. Fica salvo no aparelho e pode ser trocado na
- * tela de login, assim o mesmo app serve para o PC de quem hospeda (localhost)
- * e para os amigos (por exemplo, o IP do Radmin de quem hospeda).
+ * tela de login, assim o mesmo app serve para o PC de quem hospeda (localhost),
+ * para os amigos pelo Radmin (o IP de quem hospeda) e para o servidor na nuvem
+ * (um domínio com HTTPS).
  */
 
 const SERVER_URL_KEY = 'nexusvoice:serverUrl';
 const DEFAULT_PORT = '3001';
 
-export const DEFAULT_SERVER_URL =
-  (import.meta.env.VITE_SERVER_URL as string | undefined) ?? 'http://localhost:3001';
+function defaultServerUrl(): string {
+  const fromEnv = import.meta.env.VITE_SERVER_URL as string | undefined;
+  if (fromEnv) return fromEnv;
+  // Versão web aberta pelo domínio do servidor na nuvem: o servidor é o próprio site.
+  if (
+    import.meta.env.PROD &&
+    typeof window !== 'undefined' &&
+    !('__TAURI_INTERNALS__' in window) &&
+    window.location.protocol === 'https:'
+  ) {
+    return window.location.origin;
+  }
+  return 'http://localhost:3001';
+}
+
+export const DEFAULT_SERVER_URL = defaultServerUrl();
 
 /** Repositório usado para procurar versões novas do app de desktop. */
 export const UPDATE_REPO = 'MaikOFC/NexusVoice';
 
-/** Aceita "26.1.2.3", "26.1.2.3:3001" ou "http://..." e devolve uma URL completa. */
+/**
+ * IP, localhost ou nome da rede de casa (sem ponto ou terminando em .local):
+ * servidor no PC de alguém, sem HTTPS, na porta 3001.
+ */
+function isLocalAddress(hostname: string): boolean {
+  return (
+    hostname === 'localhost' ||
+    /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) ||
+    hostname.startsWith('[') ||
+    !hostname.includes('.') ||
+    hostname.endsWith('.local')
+  );
+}
+
+/**
+ * Aceita "26.1.2.3", "26.1.2.3:3001", "nexusvoice.duckdns.org" ou "http(s)://..."
+ * e devolve uma URL completa. IP sem porta ganha a 3001; domínio sem
+ * "http://" na frente vira HTTPS.
+ */
 export function normalizeServerUrl(raw: string): string | null {
   let value = raw.trim();
   if (!value) return null;
   if (!/^https?:\/\//i.test(value)) {
-    value = `http://${value}`;
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) return null;
+    try {
+      const probe = new URL(`http://${value}`);
+      value = isLocalAddress(probe.hostname) || probe.port ? `http://${value}` : `https://${value}`;
+    } catch {
+      return null;
+    }
   }
   try {
     const url = new URL(value);

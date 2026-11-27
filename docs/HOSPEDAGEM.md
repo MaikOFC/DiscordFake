@@ -84,7 +84,7 @@ completa, copie a pasta `apps/server/data` inteira com o servidor desligado.
 
 ## E depois do Radmin?
 
-Se um dia quiserem que qualquer pessoa entre sem instalar o Radmin, o caminho
-é um servidor alugado (VPS) com domínio e HTTPS, e um servidor TURN para quem
-estiver atrás de rede muito fechada. O código já está pronto para isso: só
-muda onde o `npm run hospedar` roda e o endereço que as pessoas digitam.
+Para ninguém precisar do Radmin nem deixar o PC ligado, o NexusVoice também
+roda numa máquina grátis da Oracle, com domínio e HTTPS. O passo a passo está
+em [SERVIDOR-NA-NUVEM.md](SERVIDOR-NA-NUVEM.md), e ele explica como levar as
+contas e o histórico deste servidor para lá.
