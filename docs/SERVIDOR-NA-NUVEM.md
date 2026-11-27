@@ -17,16 +17,50 @@ Como fica:
 
 O caminho todo leva uns 40 minutos na primeira vez.
 
+## Resumo do caminho
+
+Quem cuida do servidor faz tudo isto uma vez só:
+
+- [ ] Criar a conta na Oracle (passo 1)
+- [ ] Criar a máquina e guardar a chave SSH (passo 2)
+- [ ] Abrir as portas na Oracle (passo 3)
+- [ ] Criar o endereço no DuckDNS (passo 4)
+- [ ] Entrar na máquina pelo PowerShell (passo 5)
+- [ ] Rodar o instalador (passo 6)
+- [ ] Testar sozinho pelo app e pelo navegador (passo 7)
+- [ ] Converter a conta para Pay As You Go e criar o alerta de US$ 1 (passo 8)
+- [ ] Mandar o endereço para os amigos e testar uma chamada (passo 9)
+
+Os amigos só fazem o passo 9: instalar o app e digitar o endereço.
+
+## Antes de começar
+
+Tenha em mãos:
+
+- um cartão de crédito (a Oracle só usa para verificação);
+- o celular, para o código por SMS do cadastro da Oracle;
+- uma conta do GitHub ou do Google, para entrar no DuckDNS;
+- um PC com Windows 10 ou 11. O `ssh` já vem no Windows, não precisa
+  instalar nada;
+- uma pasta para guardar a chave da máquina, por exemplo
+  `D:\NexusVoice-servidor`.
+
 ## 1. Criar a conta na Oracle
 
 1. Entre em [oracle.com/cloud/free](https://www.oracle.com/cloud/free/) e
    clique em "Start for free".
-2. Na região (home region), escolha **Brazil East (São Paulo)** ou
+2. Preencha país, nome e e-mail e confirme o e-mail pelo link que chega.
+3. Escolha a senha e o **Cloud Account Name** (um nome curto, sem espaço; ele
+   é usado para entrar no painel depois, então anote).
+4. Na região (home region), escolha **Brazil East (São Paulo)** ou
    **Brazil Southeast (Vinhedo)**. Ela não muda depois, e a máquina grátis só
    pode ser criada nela.
-3. O cadastro pede um cartão de crédito para verificação. Pode aparecer uma
-   cobrança pequena que é devolvida. A conta grátis não cobra nada enquanto
-   ficar dentro dos limites do Always Free.
+5. Endereço, telefone (chega um código por SMS) e cartão de crédito. Pode
+   aparecer uma cobrança pequena de verificação, que é devolvida. A conta
+   grátis não cobra nada enquanto ficar dentro dos limites do Always Free.
+6. A Oracle leva de alguns minutos a algumas horas para liberar a conta.
+   Chega um e-mail quando estiver pronta. Para entrar no painel depois:
+   [cloud.oracle.com](https://cloud.oracle.com), com o Cloud Account Name.
 
 ## 2. Criar a máquina
 
@@ -126,17 +160,28 @@ Leva de 5 a 10 minutos. O script:
 
 O banco e os arquivos enviados ficam em `/var/lib/nexusvoice`.
 
-## 7. Entrar no servidor
+Se o script parar com uma mensagem de erro, leia a linha logo acima dela: é
+o motivo. Corrija e rode o mesmo comando de novo; ele continua de onde dá.
 
-- **No app:** na tela de login, clique em **Trocar** ao lado de "Servidor" e
-  digite `seugrupo.duckdns.org`. No app 0.2.0, digite com `https://` na
-  frente: `https://seugrupo.duckdns.org`.
-- **No navegador:** abra `https://seugrupo.duckdns.org`.
+## 7. Testar sozinho
+
+1. No PC, abra `https://seugrupo.duckdns.org` no navegador. Tem que aparecer
+   a tela de login do NexusVoice com o cadeado do HTTPS.
+2. Instale o app 0.3.0 ou mais novo (veja o passo 9) e, na tela de login,
+   clique em **Trocar** ao lado de "Servidor", digite `seugrupo.duckdns.org`
+   e clique em **Testar**. Tem que aparecer "Servidor encontrado!".
+3. Crie a sua conta, crie um servidor e entre no canal de voz. Se aparecer
+   "Voz conectada", a voz está passando pelo servidor.
+
+No app 0.2.0, o endereço precisa ser digitado com `https://` na frente:
+`https://seugrupo.duckdns.org`.
 
 As contas são de cada servidor. No servidor novo, cada um cria a conta de
-novo, a não ser que vocês tragam os dados do PC (veja abaixo).
+novo, a não ser que vocês tragam os dados do PC (veja "Trazer os dados do
+servidor do Radmin", mais abaixo). Se for trazer, faça isso antes de os
+amigos criarem conta.
 
-## Para a Oracle não apagar a máquina
+## 8. Para a Oracle não apagar a máquina
 
 Numa conta só Always Free, a Oracle pode recuperar a máquina se, durante 7
 dias, o uso de processador, de rede e de memória ficar abaixo de 20%. Um
@@ -148,8 +193,41 @@ Free continuam grátis, mas o que passar deles passa a ser cobrado no cartão.
 Por isso, crie também um alerta de orçamento (Billing > **Budgets**) de
 US$ 1: se alguma coisa começar a cobrar, chega um e-mail.
 
-Se preferir não converter, faça cópias dos dados de vez em quando (próxima
-seção). Assim, se a máquina sumir, basta criar outra e restaurar.
+Se preferir não converter, faça cópias dos dados de vez em quando (veja
+"Cópia dos dados"). Assim, se a máquina sumir, basta criar outra e restaurar.
+
+## 9. Chamar os amigos
+
+Cada amigo:
+
+1. Baixa o instalador mais novo em
+   [Releases](https://github.com/MaikOFC/NexusVoice/releases/latest), o
+   arquivo que termina em `x64-setup.exe`. Quem já tem o app recebe o aviso
+   de versão nova e pode baixar por ele.
+2. Instala. Se o Windows mostrar "O Windows protegeu o computador", clique em
+   **Mais informações** e depois em **Executar assim mesmo**. O aviso aparece
+   porque o instalador não tem assinatura paga.
+3. Na tela de login, clica em **Trocar**, digita `seugrupo.duckdns.org` e cria
+   a conta.
+4. Entra no servidor com o código de convite. Quem já está no servidor vê o
+   código clicando no nome dele, no alto da lista de canais, e tem um botão
+   **Copiar** ali.
+
+Quem não quiser instalar pode usar pelo navegador em
+`https://seugrupo.duckdns.org`, mas os atalhos globais (push-to-talk com o
+jogo em foco), o ícone perto do relógio e o "Jogando X" só existem no app.
+
+Ninguém precisa mais do Radmin para entrar.
+
+Uma mensagem pronta para mandar no grupo:
+
+> Agora o NexusVoice fica ligado direto. Baixa o app aqui:
+> https://github.com/MaikOFC/NexusVoice/releases/latest (o arquivo
+> x64-setup.exe). Na tela de login, clica em Trocar e coloca
+> seugrupo.duckdns.org. Cria tua conta e entra com o código CÓDIGO.
+
+Para testar a voz com alguém, usem fone: sem fone, o microfone de um pega o
+som do outro e fica eco.
 
 ## Atualizar
 
