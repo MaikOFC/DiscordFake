@@ -64,9 +64,14 @@ O app guarda login, configurações e cache numa pasta `dados` ao lado do
 
 ## Hospedar para os amigos
 
-Veja [docs/HOSPEDAGEM.md](docs/HOSPEDAGEM.md). Em resumo: todo mundo no
-Radmin VPN, quem hospeda roda `npm run hospedar` e os amigos colocam o IP do
-Radmin dessa pessoa na tela de login do app.
+Tem dois jeitos:
+
+- **Servidor grátis na nuvem (Oracle):** fica ligado o tempo todo, ninguém
+  precisa do Radmin e dá para entrar pelo navegador com HTTPS. Um script
+  instala tudo na máquina. Veja [docs/SERVIDOR-NA-NUVEM.md](docs/SERVIDOR-NA-NUVEM.md).
+- **No PC de alguém, pelo Radmin VPN:** todo mundo no Radmin, quem hospeda
+  roda `npm run hospedar` e os amigos colocam o IP do Radmin dessa pessoa na
+  tela de login do app. Veja [docs/HOSPEDAGEM.md](docs/HOSPEDAGEM.md).
 
 ## Comandos úteis
 

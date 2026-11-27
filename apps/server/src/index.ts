@@ -71,7 +71,22 @@ import {
 
 const API_VERSION = 2;
 const PORT = Number(process.env.PORT ?? 3001);
+// Atrás do Caddy (servidor na nuvem) o certo é ouvir só em 127.0.0.1.
+const HOST = process.env.HOST?.trim() || '0.0.0.0';
 const TYPING_THROTTLE_MS = 2500;
+
+/**
+ * Atrás de um proxy (Caddy), todos os pedidos chegam de 127.0.0.1 e o IP real
+ * vem no X-Forwarded-For. TRUST_PROXY diz em quem confiar: "loopback" para o
+ * Caddy na mesma máquina. Sem isso, o limite de tentativas de login valeria
+ * para todo mundo junto.
+ */
+function readTrustProxy(): boolean | string {
+  const raw = process.env.TRUST_PROXY?.trim();
+  if (!raw || raw === 'false' || raw === '0') return false;
+  if (raw === 'true' || raw === '1') return true;
+  return raw;
+}
 
 /**
  * Endereços que podem usar a API pelo navegador: o .env (CLIENT_ORIGIN, pode ter
@@ -108,7 +123,7 @@ function isOriginAllowed(origin: string | undefined): boolean {
 
 const fastify = Fastify({
   logger: true,
-  trustProxy: false,
+  trustProxy: readTrustProxy(),
 });
 
 await fastify.register(cors, {
@@ -725,7 +740,7 @@ setInterval(
 ).unref();
 
 try {
-  await fastify.listen({ port: PORT, host: '0.0.0.0' });
+  await fastify.listen({ port: PORT, host: HOST });
 } catch (error) {
   fastify.log.error(error);
   process.exit(1);

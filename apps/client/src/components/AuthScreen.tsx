@@ -214,7 +214,7 @@ export function AuthScreen() {
                       setServerInput(e.target.value);
                       setServerStatus(null);
                     }}
-                    placeholder="ex: 26.49.143.245"
+                    placeholder="ex: nexusvoice.duckdns.org"
                     className={`${inputClass} font-mono`}
                   />
                   <button
@@ -231,8 +231,8 @@ export function AuthScreen() {
                   </p>
                 )}
                 <p className="text-xs text-zinc-500">
-                  Use o IP do Radmin de quem hospeda (a porta 3001 entra sozinha). No PC do
-                  servidor, use localhost.
+                  Use o domínio do servidor na nuvem ou o IP do Radmin de quem hospeda (a porta 3001
+                  entra sozinha). No PC do servidor, use localhost.
                 </p>
               </div>
             )}
